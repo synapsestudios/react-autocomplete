@@ -295,7 +295,7 @@ module.exports = React.createClass({
      *
      * @param  Event event
      */
-    handleKeyDown : function(event)
+    handleKeyDown : function(value, event)
     {
         event.stopPropagation();
 
