@@ -45,9 +45,11 @@ module.exports = React.createClass({
         return (
             <div style={styles}>
                 <Autocomplete
-                    searchField = 'Search Field'
+                    searchField = 'option'
                     id          = 'autocompleteDemo'
                     options     = {autocompleteOptions}
+                    minimumCharacters = {0}
+                    showSuggestionsOnEmptyFocus={true}
                 />
             </div>
         );
