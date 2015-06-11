@@ -33,6 +33,7 @@
          "style-loader"        : "0.8.3",
          "underscore"          : "1.6.0",
          "webpack"             : "1.5.3",
-         "webpack-dev-server"  : "1.7.0"
+         "webpack-dev-server"  : "1.7.0",
+         "classnames"          : "2.1.2"
     }
 }
