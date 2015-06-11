@@ -2,10 +2,9 @@
 
 var _               = require('lodash');
 var React           = require('react');
-var cx              = require('react/lib/cx');
+var classNames      = require('classnames');
 var TextInput       = require('synfrastructure').Input;
 var Fuse            = require('fuse.js');
-var dispatcher      = require('synapse-common/lib/dispatcher');
 
 var KC_ENTER     = 13,
     KC_ESC       = 27,
@@ -23,6 +22,7 @@ module.exports = React.createClass({
 
     propTypes : {
         // makeSelection is responsible for responding when a user selects a suggested item
+        // options is list of objects
         searchField                 : React.PropTypes.string.isRequired,
         label                       : React.PropTypes.string,
         makeSelection               : React.PropTypes.func,
@@ -39,7 +39,33 @@ module.exports = React.createClass({
         value                       : React.PropTypes.string // Value to display in text box
     },
 
-    shouldComponentUpdate : function(nextProps, nextState)
+    /**
+     * maximumCharacters exists to help optimize usage of Fuse.js
+     * After maximumCharacters is met, the input will be reset to a blank string
+     * for a better user experience
+     *
+     * @link https://github.com/krisk/Fuse
+     */
+    getDefaultProps()
+    {
+        return {
+            label                       : null,
+            makeSelection               : null,
+            onChange                    : null,
+            options                     : null,
+            initialValue                : null,
+            value                       : null,
+            minimumCharacters           : 3,
+            maximumCharacters           : 32,
+            maximumSuggestions          : 5,
+            placeholder                 : '',
+            retainValueOnBlur           : false,
+            clearOnSelect               : false,
+            showSuggestionsOnEmptyFocus : false,
+        };
+    },
+
+    shouldComponentUpdate(nextProps, nextState)
     {
         var filterIgnoredProps, shallowPropsChanged;
 
@@ -62,7 +88,7 @@ module.exports = React.createClass({
         );
     },
 
-    getInitialState : function()
+    getInitialState()
     {
         var selection = this.props.value || this.props.initialValue;
 
@@ -75,31 +101,12 @@ module.exports = React.createClass({
         };
     },
 
-    /**
-     * maximumCharacters exists to help optimize usage of Fuse.js
-     * After maximumCharacters is met, the input will be reset to a blank string
-     * for a better user experience
-     *
-     * @link https://github.com/krisk/Fuse
-     */
-    getDefaultProps : function()
-    {
-        return {
-            label              : null,
-            minimumCharacters  : 3,
-            maximumCharacters  : 32,
-            maximumSuggestions : 5,
-            placeholder        : '',
-            retainValueOnBlur  : false
-        };
-    },
-
-    componentWillMount : function()
+    componentWillMount()
     {
         this.makeCurrentSelection = _(this.makeCurrentSelection).bind(this);
     },
 
-    componentWillReceiveProps : function(nextProps)
+    componentWillReceiveProps(nextProps)
     {
         var state = {
             dropdownIndex : 0,
@@ -113,17 +120,7 @@ module.exports = React.createClass({
         this.setState(state);
     },
 
-    componentDidMount : function()
-    {
-        dispatcher.on('select-selected-autocomplete', this.makeCurrentSelection);
-    },
-
-    componentWillUnmount : function()
-    {
-        dispatcher.removeListener('select-selected-autocomplete', this.makeCurrentSelection);
-    },
-
-    createFuseObject : function(items, searchField)
+    createFuseObject(items, searchField)
     {
         var options = {
             caseSensitive    : false,
@@ -137,7 +134,7 @@ module.exports = React.createClass({
         return new Fuse(items, options);
     },
 
-    getSuggestions : function(query)
+    getSuggestions(query)
     {
         var suggestions = this.state.fuse.search(query);
 
@@ -150,7 +147,7 @@ module.exports = React.createClass({
         return suggestions;
     },
 
-    incrementAutoselect : function(amount)
+    incrementAutoselect(amount)
     {
         var maxPosition = (this.state.suggestions.length - 1);
 
@@ -165,7 +162,7 @@ module.exports = React.createClass({
         }
     },
 
-    decrementAutoselect : function(amount)
+    decrementAutoselect(amount)
     {
         if (amount === undefined) {
             amount = 1;
@@ -178,13 +175,13 @@ module.exports = React.createClass({
         }
     },
 
-    updateDropdownPosition : function(newPosition)
+    updateDropdownPosition(newPosition)
     {
         this.setState({dropdownIndex : newPosition});
         this.adjustScrollPosition(newPosition);
     },
 
-    adjustScrollPosition : function(dropdownIndex)
+    adjustScrollPosition(dropdownIndex)
     {
         var list, selectedChild, minScroll, maxScroll;
 
@@ -200,7 +197,7 @@ module.exports = React.createClass({
         }
     },
 
-    makeCurrentSelection : function()
+    makeCurrentSelection()
     {
         if (this.state.suggestions.length === 0) {
             return;
@@ -209,7 +206,7 @@ module.exports = React.createClass({
         this.makeSelection(this.state.suggestions[this.state.dropdownIndex]);
     },
 
-    makeSelection : function(selection)
+    makeSelection(selection)
     {
         if (this.props.clearOnSelect) {
             this.setState({
@@ -234,12 +231,12 @@ module.exports = React.createClass({
         }
     },
 
-    dropdownVisible : function()
+    dropdownVisible()
     {
         return this.state.suggestions && this.state.suggestions.length > 0;
     },
 
-    handleChange : function(value)
+    handleChange(value)
     {
         var newState, suggestions, noPossibleMatches, updatingLastQuery;
 
@@ -275,7 +272,7 @@ module.exports = React.createClass({
         }
     },
 
-    handleBlur : function(e)
+    handleBlur(e)
     {
         var state = {};
 
@@ -290,7 +287,7 @@ module.exports = React.createClass({
         this.setState(state);
     },
 
-    handleFocus : function()
+    handleFocus()
     {
         if (this.state.searchQuery === '' && ! this.state.selection && this.props.showSuggestionsOnEmptyFocus === true) {
             this.setState({
@@ -306,7 +303,7 @@ module.exports = React.createClass({
      *
      * @param  Event event
      */
-    handleKeyDown : function(event)
+    handleKeyDown(value, event)
     {
         event.stopPropagation();
 
@@ -349,7 +346,7 @@ module.exports = React.createClass({
         }
     },
 
-    renderInput : function()
+    renderInput()
     {
         var value = this.props.value;
 
@@ -375,12 +372,12 @@ module.exports = React.createClass({
         );
     },
 
-    renderDropdownItems : function()
+    renderDropdownItems()
     {
         var component = this;
 
         return this.state.suggestions.map(function(suggestion, index) {
-            var classes = cx({
+            var classes = classNames({
                 'autocomplete__item'              : true,
                 'autocomplete__item--is-selected' : index === component.state.dropdownIndex
             });
@@ -395,15 +392,15 @@ module.exports = React.createClass({
         });
     },
 
-    renderDropdown : function()
+    renderDropdown()
     {
-        var classes = cx({
+        var classes = {
             'autocomplete__dropdown'          : true,
             'autocomplete__dropdown--visible' : this.dropdownVisible()
-        });
+        };
 
         return (
-            <div className={classes} ref='list'>
+            <div className={classNames(classes)} ref='list'>
                 <ul className='autocomplete__list'>
                     {this.renderDropdownItems()}
                 </ul>
@@ -411,22 +408,19 @@ module.exports = React.createClass({
         );
     },
 
-    render : function()
+    render()
     {
-        var autoCompleteClasses = {autocomplete : true};
-
-        if (this.props.className) {
-            autoCompleteClasses[this.props.className] = true;
-        }
+        var classes = [
+            'autocomplete',
+            this.props.className
+        ];
 
         return (
-            <div className={this.props.className}>
-                <div className={cx(autoCompleteClasses)}>
-                    <div className='autocomplete__input-wrapper'>
-                        {this.renderInput()}
-                    </div>
-                    {this.renderDropdown()}
+            <div className={classNames(classes)}>
+                <div className={this.props.componentCSSClassName + '__input-wrapper'}>
+                    {this.renderInput()}
                 </div>
+                {this.renderDropdown()}
             </div>
         );
     }

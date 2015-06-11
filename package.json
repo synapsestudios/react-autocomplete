@@ -16,23 +16,24 @@
     "dependencies" : {
         "fuse.js"         : "1.2.2",
         "lodash"          : "3.6.0",
-        "synfrastructure" : "git@github.com:synapsestudios/synfrastructure.git",
+        "synfrastructure" : "3.0.0",
         "synapse-common"  : "1.6.0"
     },
     "devDependencies": {
          "autoprefixer-loader" : "1.2.0",
          "babel"               : "5.1.10",
-         "babel-loader"        : "5.0.0",
+         "babel-loader"        : "5.1.4",
          "css-loader"          : "0.9.1",
          "express-http-proxy"  : "0.4.0",
          "html-webpack-plugin" : "1.1.0",
-         "react"               : "0.12.2",
+         "react"               : "0.13.3",
          "react-hot-loader"    : "1.1.4",
          "request"             : "2.53.0",
          "sass-loader"         : "0.4.2",
          "style-loader"        : "0.8.3",
          "underscore"          : "1.6.0",
          "webpack"             : "1.5.3",
-         "webpack-dev-server"  : "1.7.0"
+         "webpack-dev-server"  : "1.7.0",
+         "classnames"          : "2.1.2"
     }
 }
