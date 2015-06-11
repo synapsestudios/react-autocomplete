@@ -2,10 +2,9 @@
 
 var _ = require('lodash');
 var React = require('react');
-var cx = require('react/lib/cx');
+var classNames = require('classnames');
 var TextInput = require('synfrastructure').Input;
 var Fuse = require('fuse.js');
-var dispatcher = require('synapse-common/lib/dispatcher');
 
 var KC_ENTER = 13,
     KC_ESC = 27,
@@ -23,6 +22,7 @@ module.exports = React.createClass({
 
     propTypes: {
         // makeSelection is responsible for responding when a user selects a suggested item
+        // options is list of objects
         searchField: React.PropTypes.string.isRequired,
         label: React.PropTypes.string,
         makeSelection: React.PropTypes.func,
@@ -37,6 +37,31 @@ module.exports = React.createClass({
         retainValueOnBlur: React.PropTypes.bool,
         showSuggestionsOnEmptyFocus: React.PropTypes.bool,
         value: React.PropTypes.string // Value to display in text box
+    },
+
+    /**
+     * maximumCharacters exists to help optimize usage of Fuse.js
+     * After maximumCharacters is met, the input will be reset to a blank string
+     * for a better user experience
+     *
+     * @link https://github.com/krisk/Fuse
+     */
+    getDefaultProps: function getDefaultProps() {
+        return {
+            label: null,
+            makeSelection: null,
+            onChange: null,
+            options: null,
+            initialValue: null,
+            value: null,
+            minimumCharacters: 3,
+            maximumCharacters: 32,
+            maximumSuggestions: 5,
+            placeholder: '',
+            retainValueOnBlur: false,
+            clearOnSelect: false,
+            showSuggestionsOnEmptyFocus: false
+        };
     },
 
     shouldComponentUpdate: function shouldComponentUpdate(nextProps, nextState) {
@@ -67,24 +92,6 @@ module.exports = React.createClass({
         };
     },
 
-    /**
-     * maximumCharacters exists to help optimize usage of Fuse.js
-     * After maximumCharacters is met, the input will be reset to a blank string
-     * for a better user experience
-     *
-     * @link https://github.com/krisk/Fuse
-     */
-    getDefaultProps: function getDefaultProps() {
-        return {
-            label: null,
-            minimumCharacters: 3,
-            maximumCharacters: 32,
-            maximumSuggestions: 5,
-            placeholder: '',
-            retainValueOnBlur: false
-        };
-    },
-
     componentWillMount: function componentWillMount() {
         this.makeCurrentSelection = _(this.makeCurrentSelection).bind(this);
     },
@@ -100,14 +107,6 @@ module.exports = React.createClass({
         }
 
         this.setState(state);
-    },
-
-    componentDidMount: function componentDidMount() {
-        dispatcher.on('select-selected-autocomplete', this.makeCurrentSelection);
-    },
-
-    componentWillUnmount: function componentWillUnmount() {
-        dispatcher.removeListener('select-selected-autocomplete', this.makeCurrentSelection);
     },
 
     createFuseObject: function createFuseObject(items, searchField) {
@@ -273,7 +272,7 @@ module.exports = React.createClass({
      *
      * @param  Event event
      */
-    handleKeyDown: function handleKeyDown(event) {
+    handleKeyDown: function handleKeyDown(value, event) {
         event.stopPropagation();
 
         var code = event.keyCode ? event.keyCode : event.which;
@@ -342,7 +341,7 @@ module.exports = React.createClass({
         var component = this;
 
         return this.state.suggestions.map(function (suggestion, index) {
-            var classes = cx({
+            var classes = classNames({
                 'autocomplete__item': true,
                 'autocomplete__item--is-selected': index === component.state.dropdownIndex
             });
@@ -358,14 +357,14 @@ module.exports = React.createClass({
     },
 
     renderDropdown: function renderDropdown() {
-        var classes = cx({
+        var classes = {
             'autocomplete__dropdown': true,
             'autocomplete__dropdown--visible': this.dropdownVisible()
-        });
+        };
 
         return React.createElement(
             'div',
-            { className: classes, ref: 'list' },
+            { className: classNames(classes), ref: 'list' },
             React.createElement(
                 'ul',
                 { className: 'autocomplete__list' },
@@ -375,25 +374,17 @@ module.exports = React.createClass({
     },
 
     render: function render() {
-        var autoCompleteClasses = { autocomplete: true };
-
-        if (this.props.className) {
-            autoCompleteClasses[this.props.className] = true;
-        }
+        var classes = ['autocomplete', this.props.className];
 
         return React.createElement(
             'div',
-            { className: this.props.className },
+            { className: classNames(classes) },
             React.createElement(
                 'div',
-                { className: cx(autoCompleteClasses) },
-                React.createElement(
-                    'div',
-                    { className: 'autocomplete__input-wrapper' },
-                    this.renderInput()
-                ),
-                this.renderDropdown()
-            )
+                { className: this.props.componentCSSClassName + '__input-wrapper' },
+                this.renderInput()
+            ),
+            this.renderDropdown()
         );
     }
 });
