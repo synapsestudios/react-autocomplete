@@ -5,7 +5,6 @@ var React           = require('react');
 var cx              = require('react/lib/cx');
 var TextInput       = require('synfrastructure').Input;
 var Fuse            = require('fuse.js');
-var dispatcher      = require('synapse-common/lib/dispatcher');
 
 var KC_ENTER     = 13,
     KC_ESC       = 27,
@@ -111,16 +110,6 @@ module.exports = React.createClass({
         }
 
         this.setState(state);
-    },
-
-    componentDidMount : function()
-    {
-        dispatcher.on('select-selected-autocomplete', this.makeCurrentSelection);
-    },
-
-    componentWillUnmount : function()
-    {
-        dispatcher.removeListener('select-selected-autocomplete', this.makeCurrentSelection);
     },
 
     createFuseObject : function(items, searchField)
