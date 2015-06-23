@@ -1,10 +1,12 @@
 'use strict';
 
-var _               = require('lodash');
-var React           = require('react');
-var classNames      = require('classnames');
-var TextInput       = require('synfrastructure').Input;
-var Fuse            = require('fuse.js');
+var win                 = typeof window !== 'undefined' ? window : false;
+var _                   = require('lodash');
+var React               = require('react');
+var classNames          = require('classnames');
+var TextInput           = require('synfrastructure').Input;
+var Fuse                = require('fuse.js');
+var ScrollListenerMixin = require('react-scroll-components').ScrollListenerMixin;
 
 var KC_ENTER     = 13,
     KC_ESC       = 27,
@@ -16,7 +18,7 @@ var KC_ENTER     = 13,
 // Number of items to jump up/down using page up / page down
 var PAGE_UP_DOWN_JUMP = 5;
 
-module.exports = React.createClass({
+var ReactAutocomplete = React.createClass({
 
     displayName : 'ReactAutocomplete',
 
@@ -24,7 +26,10 @@ module.exports = React.createClass({
         // makeSelection is responsible for responding when a user selects a suggested item
         // options is list of objects
         searchField                 : React.PropTypes.string.isRequired,
-        label                       : React.PropTypes.string,
+        id                          : React.PropTypes.oneOfType([
+            React.PropTypes.string,
+            React.PropTypes.number
+        ]).isRequired,
         makeSelection               : React.PropTypes.func,
         onChange                    : React.PropTypes.func,
         options                     : React.PropTypes.arrayOf(React.PropTypes.object),
@@ -36,7 +41,11 @@ module.exports = React.createClass({
         clearOnSelect               : React.PropTypes.bool,
         retainValueOnBlur           : React.PropTypes.bool,
         showSuggestionsOnEmptyFocus : React.PropTypes.bool,
-        value                       : React.PropTypes.string // Value to display in text box
+        value                       : React.PropTypes.string, // Value to display in text box
+        dropdownPosition            : React.PropTypes.oneOf(['top', 'bottom']),
+        dropdownHeight              : React.PropTypes.number,
+        InputComponent              : React.PropTypes.any,
+        className                   : React.PropTypes.string
     },
 
     /**
@@ -49,7 +58,6 @@ module.exports = React.createClass({
     getDefaultProps()
     {
         return {
-            label                       : null,
             makeSelection               : null,
             onChange                    : null,
             options                     : null,
@@ -62,7 +70,30 @@ module.exports = React.createClass({
             retainValueOnBlur           : false,
             clearOnSelect               : false,
             showSuggestionsOnEmptyFocus : false,
+            dropdownPosition            : null,
+            dropdownHeight              : null,
+            InputComponent              : TextInput,
+            className                   : null
         };
+    },
+
+    getInitialState()
+    {
+        var selection = this.props.value || this.props.initialValue;
+
+        return {
+            dropdownIndex    : 0,
+            fuse             : this.createFuseObject(this.props.options, this.props.searchField),
+            suggestions      : [],
+            selection        : selection || null,
+            searchQuery      : this.props.value || '',
+            dropdownPosition : this.props.dropdownPosition
+        };
+    },
+
+    componentDidMount()
+    {
+        this.setDropdownPosition();
     },
 
     shouldComponentUpdate(nextProps, nextState)
@@ -88,19 +119,6 @@ module.exports = React.createClass({
         );
     },
 
-    getInitialState()
-    {
-        var selection = this.props.value || this.props.initialValue;
-
-        return {
-            dropdownIndex : 0,
-            fuse          : this.createFuseObject(this.props.options, this.props.searchField),
-            suggestions   : [],
-            selection     : selection || null,
-            searchQuery   : this.props.value || ''
-        };
-    },
-
     componentWillMount()
     {
         this.makeCurrentSelection = _(this.makeCurrentSelection).bind(this);
@@ -118,6 +136,11 @@ module.exports = React.createClass({
         }
 
         this.setState(state);
+    },
+
+    componentDidUpdate(prevProps, prevState)
+    {
+        this.setDropdownPosition();
     },
 
     createFuseObject(items, searchField)
@@ -208,6 +231,8 @@ module.exports = React.createClass({
 
     makeSelection(selection)
     {
+        var inputDOMNode = React.findDOMNode(this.refs.inputComponent.refs.input);
+
         if (this.props.clearOnSelect) {
             this.setState({
                 suggestions : [],
@@ -229,6 +254,8 @@ module.exports = React.createClass({
         if (this.props.makeSelection) {
             this.props.makeSelection(selection);
         }
+
+        inputDOMNode.blur();
     },
 
     dropdownVisible()
@@ -346,19 +373,44 @@ module.exports = React.createClass({
         }
     },
 
+    /**
+     * Set suggestion list dropdown based on Y postion to viewport
+     * explicitly passing dropdownPosition prop will disable this
+     */
+    setDropdownPosition()
+    {
+        if (! win) {
+            return null;
+        }
+
+        var offset            = this.props.dropdownHeight || 250,
+            winHeight         = win.innerHeight,
+            componentPosition = React.findDOMNode(this.refs.autocomplete).getBoundingClientRect().top,
+            dropdownPosition  = (componentPosition + offset > winHeight) ?
+                'top' : 'bottom';
+
+        if (
+            ! this.props.dropdownPosition &&
+            this.state.dropdownPosition != dropdownPosition
+        ) {
+            this.setState({dropdownPosition : dropdownPosition});
+        }
+    },
+
     renderInput()
     {
-        var value = this.props.value;
+        var value     = this.props.value,
+            Component = this.props.InputComponent;
 
         if (! value) {
             value = this.state.selection ? this.state.selection[this.props.searchField] : this.state.searchQuery;
         }
 
         return (
-            <TextInput
+            <Component
+                ref          = 'inputComponent'
                 className    = 'autocomplete__input'
                 id           = {this.props.id}
-                label        = {this.props.label}
                 onKeyDown    = {this.handleKeyDown}
                 onChange     = {this.handleChange}
                 onBlur       = {this.handleBlur}
@@ -378,15 +430,17 @@ module.exports = React.createClass({
 
         return this.state.suggestions.map(function(suggestion, index) {
             var classes = classNames({
-                'autocomplete__item'              : true,
-                'autocomplete__item--is-selected' : index === component.state.dropdownIndex
+                'autocomplete__item'           : true,
+                'autocomplete__item--selected' : index === component.state.dropdownIndex
             });
 
             return (
-                <li onMouseDown = {_.partial(component.makeSelection, suggestion)}
+                <li
+                    className   = {classes}
+                    onMouseDown = {_.partial(component.makeSelection, suggestion)}
                     key         = {suggestion[component.props.searchField]}
-                    className   = {classes}>
-                        {suggestion[component.props.searchField]}
+                >
+                    {suggestion[component.props.searchField]}
                 </li>
             );
         });
@@ -394,13 +448,32 @@ module.exports = React.createClass({
 
     renderDropdown()
     {
-        var classes = {
+        var classes,
+            dropdownStyles,
+            dropdownHeight;
+
+        classes = {
             'autocomplete__dropdown'          : true,
+            'autocomplete__dropdown--top'     : this.state.dropdownPosition === 'top',
+            'autocomplete__dropdown--bottom'  : this.state.dropdownPosition === 'bottom',
             'autocomplete__dropdown--visible' : this.dropdownVisible()
         };
 
+        dropdownHeight = this.dropdownVisible() ?
+            this.props.dropdownHeight : 0;
+
+        if (this.props.dropdownHeight) {
+            dropdownStyles = {
+                maxHeight : dropdownHeight + 'px'
+            };
+        }
+
         return (
-            <div className={classNames(classes)} ref='list'>
+            <div
+                ref       = 'list'
+                className = {classNames(classes)}
+                style     = {dropdownStyles}
+            >
                 <ul className='autocomplete__list'>
                     {this.renderDropdownItems()}
                 </ul>
@@ -416,8 +489,8 @@ module.exports = React.createClass({
         ];
 
         return (
-            <div className={classNames(classes)}>
-                <div className={this.props.componentCSSClassName + '__input-wrapper'}>
+            <div ref='autocomplete' className={classNames(classes)}>
+                <div className='autocomplete__input-wrapper'>
                     {this.renderInput()}
                 </div>
                 {this.renderDropdown()}
@@ -425,3 +498,5 @@ module.exports = React.createClass({
         );
     }
 });
+
+module.exports = ReactAutocomplete;

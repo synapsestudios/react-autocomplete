@@ -9,67 +9,58 @@
 // *******************************************
 
 .autocomplete {
-    margin   : rem-calc(0 0 21 0);
     position : relative;
 }
 
-// container for text input
-.autocomplete__input-wrapper {
-    position : relative;
-}
-
-// input element
 .autocomplete__input {
-    margin : 0 !important;
+    margin : 0;
+    border : 1px solid #ededf2;
 }
 
-// dropdown section
 .autocomplete__dropdown {
-    margin-top                 : -2px;
-    height                     : 0;
-    max-height                 : 0;
-    overflow                   : hidden;
-    position                   : absolute;
-    top                        : 100%;
-    left                       : 0;
-    right                      : 0;
-    z-index                    : 5;
-    background                 : $white;
-    border-bottom-right-radius : 3px;
-    border-bottom-left-radius  : 3px;
-    transition                 : max-height .3s $ease-in-out-quad,
-                                 height .3s $ease-in-out-quad;
-
-    &.autocomplete__dropdown--visible {
-        height     : auto;
-        max-height : rem-calc(250);
-        overflow-y : scroll;
-        border     : 1px solid #ddd;
-        box-shadow : 2px 2px 0px rgba(#222, .2);
-    }
-
+    position    : absolute;
+        right   : 0;
+        left    : 0;
+        z-index : 3;
+    max-height  : 0;
+    overflow    : hidden;
+    overflow-y  : auto;
+    border      : 1px solid transparent;
+    transition  : max-height 250ms ease-in-out;
 }
 
-// list of dropdown items
-.autocomplete__list {
-    @extend .normalize-list;
+.autocomplete__dropdown--visible {
+    max-height : rem-calc(250);
+    background : #f4f4f4;
+    border     : 1px solid #cccccc;
 }
 
-// dropdown item
+.autocomplete__dropdown--top {
+    bottom        : 100%;
+    margin-bottom : rem-calc(-1);
+}
+
+.autocomplete__dropdown--bottom {
+    top        : 100%;
+    margin-top : rem-calc(-1);
+}
+
 .autocomplete__item {
-    padding   : rem-calc(9 12);
-    cursor    : pointer;
-    font-size : rem-calc(13);
+    display    : block;
+    padding    : rem-calc(6 9);
+    font-size  : rem-calc(13);
+    color      : #333333;
+    cursor     : pointer;
+    transition : color 200ms ease,
+                 background 200ms ease;
 
-    // on hover or up / down key select
-    &:hover,
-    &.autocomplete__item--is-focused {
-        background-color : #fefefe;
+    &:hover {
+        background : #999999;
+        color      : #ffffff;
     }
+}
 
-    // currently selected item
-    &.autocomplete__item--is-selected {
-        background-color : tint(#222, 75%);
-    }
-
+.autocomplete__item--selected {
+    background : #999999;
+    color      : #ffffff;
 }
