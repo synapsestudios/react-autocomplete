@@ -54,7 +54,7 @@
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "f7ed1771a763740e3dbf"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "1b614a6f72c4792dc49b"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -15455,6 +15455,16 @@
 	                    "p",
 	                    { className: "p text-center" },
 	                    "A lightweight autocomplete component built by Synapse Studios."
+	                ),
+	                React.createElement(
+	                    "p",
+	                    { className: "p text-center" },
+	                    "View this project on ",
+	                    React.createElement(
+	                        "a",
+	                        { href: "https://github.com/synapsestudios/react-autocomplete" },
+	                        "Github"
+	                    )
 	                ),
 	                React.createElement(Autocomplete, {
 	                    className: "demo__autocomplete",
