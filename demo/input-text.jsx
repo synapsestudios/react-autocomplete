@@ -1,8 +1,8 @@
 'use strict';
 
-var React = require('react');
+var React      = require('react');
 var classNames = require('classnames');
-var Input = require('synfrastructure').Input;
+var Input      = require('synfrastructure').Input;
 
 var TextInput = React.createClass({
 
