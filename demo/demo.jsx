@@ -1,7 +1,7 @@
 'use strict';
 
 var React        = require('react');
-var Autocomplete = require('../src/autocomplete');
+var Autocomplete = require('./input-autocomplete');
 
 require('../scss/autocomplete');
 
@@ -32,9 +32,11 @@ var autocompleteOptions = [
     }
 ];
 
-module.exports = React.createClass({
+var AutocompleteDemo = React.createClass({
 
-    render : function()
+    displayName : 'AutocompleteDemo',
+
+    render()
     {
         var styles = {
             maxWidth : '720px',
@@ -45,11 +47,17 @@ module.exports = React.createClass({
         return (
             <div style={styles}>
                 <Autocomplete
-                    id                          = 'autocompleteDemo'
+                    className                   = {'demo__autocomplete'}
+                    id                          = {'autocompleteDemo'}
+                    searchField                 = {'option'}
                     options                     = {autocompleteOptions}
                     placeholder                 = {'What\'s your favorite fruit?'}
-                    searchField                 = 'option'
                     minimumCharacters           = {0}
+                    maximumCharacters           = {10}
+                    maximumSuggestions          = {10}
+                    clearOnSelect               = {true}
+                    dropdownPosition            = {'bottom'}
+                    dropdownHeight              = {400}
                     showSuggestionsOnEmptyFocus = {true}
                 />
             </div>
@@ -57,3 +65,5 @@ module.exports = React.createClass({
     }
 
 });
+
+module.exports = AutocompleteDemo;

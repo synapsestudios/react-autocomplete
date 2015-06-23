@@ -18,7 +18,7 @@ var KC_ENTER     = 13,
 // Number of items to jump up/down using page up / page down
 var PAGE_UP_DOWN_JUMP = 5;
 
-module.exports = React.createClass({
+var ReactAutocomplete = React.createClass({
 
     displayName : 'ReactAutocomplete',
 
@@ -508,3 +508,5 @@ module.exports = React.createClass({
         );
     }
 });
+
+module.exports = ReactAutocomplete;
