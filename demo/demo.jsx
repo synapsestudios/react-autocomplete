@@ -3,7 +3,7 @@
 var React        = require('react');
 var Autocomplete = require('./input-autocomplete');
 
-require('../scss/autocomplete');
+require('./demo.scss');
 
 var autocompleteOptions = [
     {
@@ -38,14 +38,12 @@ var AutocompleteDemo = React.createClass({
 
     render()
     {
-        var styles = {
-            maxWidth : '720px',
-            margin   : '0 auto',
-            padding  : '20px'
-        }
+
 
         return (
-            <div style={styles}>
+            <div className='demo__wrapper'>
+                <h1 className='h1 text-center'>React Autocomplete</h1>
+                <p className='p text-center'>A lightweight autocomplete component built by Synapse Studios.</p>
                 <Autocomplete
                     className                   = {'demo__autocomplete'}
                     id                          = {'autocompleteDemo'}

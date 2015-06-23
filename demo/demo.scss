@@ -1,0 +1,43 @@
+// *******************************************
+// *******************************************
+
+    // Stylings for the Autocomplete Demo
+
+// *******************************************
+// *******************************************
+
+@import "../scss/autocomplete";
+
+body {
+    background : #f4f4f4;
+}
+
+.h1 {
+    margin      : 14px 0;
+    font-size   : 32px;
+    font-weight : 800;
+}
+
+.p {
+    margin    : 8px 0;
+    font-size : 14px;
+}
+
+.text-center {
+    text-align : center;
+}
+
+.demo__wrapper {
+    max-width  : 400px;
+    margin     : 40px auto;
+    padding    : 20px;
+    background : #ffffff;
+
+}
+
+.autocomplete__input {
+    width     : 100%;
+    margin    : 20px 0 0;
+    padding   : 10px;
+    font-size : 14px;
+}

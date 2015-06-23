@@ -44,14 +44,6 @@ var ReactAutocomplete = React.createClass({
         value                       : React.PropTypes.string, // Value to display in text box
         dropdownPosition            : React.PropTypes.oneOf(['top', 'bottom']),
         dropdownHeight              : React.PropTypes.number,
-        inputColorTheme             : React.PropTypes.oneOf([
-            'plain',
-            'classic',
-            'transparent',
-            'transparent--dark',
-            'transparent--light',
-            null
-        ]),
         InputComponent              : React.PropTypes.any,
         className                   : React.PropTypes.string
     },
@@ -80,7 +72,6 @@ var ReactAutocomplete = React.createClass({
             showSuggestionsOnEmptyFocus : false,
             dropdownPosition            : null,
             dropdownHeight              : null,
-            inputColorTheme             : null,
             InputComponent              : TextInput,
             className                   : null
         };
@@ -426,7 +417,6 @@ var ReactAutocomplete = React.createClass({
                 onFocus      = {this.handleFocus}
                 initialValue = {null}
                 value        = {value}
-                colorTheme   = {this.props.inputColorTheme}
                 placeholder  = {this.props.placeholder}
                 autoComplete = {false}
                 type         = 'text'

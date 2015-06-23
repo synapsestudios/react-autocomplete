@@ -31,8 +31,8 @@
 
 .autocomplete__dropdown--visible {
     max-height : rem-calc(250);
-    background : #1E1F21;
-    border     : 1px solid #515157;
+    background : #f4f4f4;
+    border     : 1px solid #cccccc;
 }
 
 .autocomplete__dropdown--top {
@@ -49,17 +49,18 @@
     display    : block;
     padding    : rem-calc(6 9);
     font-size  : rem-calc(13);
-    color      : #c5c5ca;
+    color      : #333333;
     cursor     : pointer;
     transition : color 200ms ease,
                  background 200ms ease;
 
     &:hover {
-        background : rgba(#3E3E40, .5);
+        background : #999999;
+        color      : #ffffff;
     }
 }
 
 .autocomplete__item--selected {
-    background : #69696f;
+    background : #999999;
     color      : #ffffff;
 }
