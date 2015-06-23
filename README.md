@@ -1,7 +1,3 @@
-React Autocomplete
+React Autocomplete Github Page
 ----
-A lightweight autocomplete input component
-
-
-* Development - `npm run demo`
-* Distribution - `npm run build`
+URL: http://synapsestudios.github.io/react-autocomplete/
