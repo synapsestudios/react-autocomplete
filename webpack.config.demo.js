@@ -1,9 +1,17 @@
 /* globals __dirname */
 'use strict';
 
-var Webpack     = require('webpack');
-var HtmlWebpack = require('html-webpack-plugin');
-var path        = require('path');
+var autoprefixer = require('autoprefixer-core');
+var Webpack      = require('webpack');
+var HtmlWebpack  = require('html-webpack-plugin');
+var path         = require('path');
+
+var npmPath     = path.resolve(__dirname, 'node_modules');
+var config      = {
+    sassOptions  : (
+        '?outputStyle=nested&includePaths[]=' + npmPath
+    )
+};
 
 module.exports = {
     entry: [
@@ -20,7 +28,7 @@ module.exports = {
             },
             {
                 test    : /\.scss$/,
-                loader  : 'style!css!autoprefixer!sass?outputStyle=nested&includePaths[]=' + path.resolve(__dirname, 'node_modules'),
+                loader  : 'style!css!postcss!sass' + config.sassOptions,
                 include : /scss/
             },
             {
@@ -43,5 +51,8 @@ module.exports = {
         }),
         new Webpack.HotModuleReplacementPlugin(),
         new Webpack.optimize.OccurenceOrderPlugin()
-    ]
+    ],
+    postcss : function() {
+        return [autoprefixer];
+    }
 };
