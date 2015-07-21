@@ -28,6 +28,8 @@ var ReactAutocomplete = React.createClass({
         id: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number]).isRequired,
         makeSelection: React.PropTypes.func,
         onChange: React.PropTypes.func,
+        onBlur: React.PropTypes.func,
+        onFocus: React.PropTypes.func,
         options: React.PropTypes.arrayOf(React.PropTypes.object),
         initialValue: React.PropTypes.object,
         minimumCharacters: React.PropTypes.number,
@@ -278,6 +280,10 @@ var ReactAutocomplete = React.createClass({
         }
 
         this.setState(state);
+
+        if (this.props.onBlur) {
+            this.props.onBlur(value);
+        }
     },
 
     handleFocus: function handleFocus() {
@@ -286,6 +292,10 @@ var ReactAutocomplete = React.createClass({
                 suggestions: this.props.options,
                 dropdownIndex: 0
             });
+        }
+
+        if (this.props.onFocus) {
+            this.props.onFocus(value);
         }
     },
 
