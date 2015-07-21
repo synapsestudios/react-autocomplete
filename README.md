@@ -2,5 +2,9 @@ React Autocomplete - [View Demo](http://synapsestudios.github.io/react-autocompl
 ----
 A lightweight autocomplete input component
 
+### Styles
+Styles are not included by default. Include `scss/autocomplete.scss` in your local app.scss file to include the base styles.
+
+### Development
 * Development - `npm run demo`
 * Distribution - `npm run build`

@@ -301,9 +301,11 @@ var ReactAutocomplete = React.createClass({
 
         switch (code) {
             case KC_UP:
+                event.preventDefault();
                 this.decrementAutoselect();
                 break;
             case KC_DOWN:
+                event.preventDefault();
                 this.incrementAutoselect();
                 break;
             case KC_ESC:
