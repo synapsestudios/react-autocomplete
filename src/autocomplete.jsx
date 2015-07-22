@@ -35,7 +35,6 @@ var ReactAutocomplete = React.createClass({
         onBlur                      : React.PropTypes.func,
         onFocus                     : React.PropTypes.func,
         options                     : React.PropTypes.arrayOf(React.PropTypes.object),
-        initialValue                : React.PropTypes.object,
         minimumCharacters           : React.PropTypes.number,
         maximumCharacters           : React.PropTypes.number,
         maximumSuggestions          : React.PropTypes.number,
@@ -43,7 +42,7 @@ var ReactAutocomplete = React.createClass({
         clearOnFocus                : React.PropTypes.bool,
         retainValueOnBlur           : React.PropTypes.bool,
         showSuggestionsOnEmptyFocus : React.PropTypes.bool,
-        value                       : React.PropTypes.string, // Value to display in text box
+        value                       : React.PropTypes.string,
         dropdownPosition            : React.PropTypes.oneOf(['top', 'bottom']),
         dropdownHeight              : React.PropTypes.number,
         InputComponent              : React.PropTypes.any,
@@ -66,7 +65,6 @@ var ReactAutocomplete = React.createClass({
             makeSelection               : null,
             onChange                    : null,
             options                     : null,
-            initialValue                : null,
             value                       : null,
             minimumCharacters           : 3,
             maximumCharacters           : 32,
@@ -84,16 +82,35 @@ var ReactAutocomplete = React.createClass({
 
     getInitialState()
     {
-        var selection = this.props.value || this.props.initialValue;
+        var where = {}, selection;
+
+        where[this.props.valueField] = this.props.value;
+
+        selection = _(this.props.options).findWhere(where);
 
         return {
             dropdownIndex    : 0,
             fuse             : this.createFuseObject(this.props.options, this.props.labelField),
             suggestions      : [],
             selection        : selection || null,
-            searchQuery      : this.props.value || '',
+            searchQuery      : this.getDisplayValue(this.props.value) || '',
             dropdownPosition : this.props.dropdownPosition
         };
+    },
+
+    getDisplayValue : function(value)
+    {
+        var selectedOption;
+
+        if (value) {
+            selectedOption = _(this.props.options).findWhere({label : value})       ;
+
+            if (selectedOption) {
+                return selectedOption.label;
+            }
+        }
+
+        return null;
     },
 
     componentDidMount()
@@ -137,7 +154,7 @@ var ReactAutocomplete = React.createClass({
         };
 
         if (nextProps.value) {
-            state.searchQuery = nextProps.value;
+            state.searchQuery = this.getDisplayValue(nextProps.value);
         }
 
         this.setState(state);
@@ -317,9 +334,10 @@ var ReactAutocomplete = React.createClass({
 
     handleFocus(e)
     {
-        if (this.props.clearOnFocus && ! this.state.selection && this.props.showSuggestionsOnEmptyFocus === true) {
+        if (this.props.clearOnFocus && this.props.showSuggestionsOnEmptyFocus === true) {
             this.setState({
                 searchQuery   : '',
+                selection     : null,
                 suggestions   : this.props.options,
                 dropdownIndex : 0
             });
@@ -417,7 +435,7 @@ var ReactAutocomplete = React.createClass({
     {
         var props, value, Component;
 
-        value     = this.props.value;
+        value     = this.getDisplayValue(this.props.value);
         Component = this.props.InputComponent;
 
         if (! value) {
@@ -432,7 +450,6 @@ var ReactAutocomplete = React.createClass({
             onChange     : this.handleChange,
             onBlur       : this.handleBlur,
             onFocus      : this.handleFocus,
-            initialValue : null,
             value        : value,
             placeholder  : this.props.placeholder,
             autoComplete : false,
