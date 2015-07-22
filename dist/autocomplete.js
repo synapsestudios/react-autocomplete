@@ -282,11 +282,11 @@ var ReactAutocomplete = React.createClass({
         this.setState(state);
 
         if (this.props.onBlur) {
-            this.props.onBlur(value);
+            this.props.onBlur(e);
         }
     },
 
-    handleFocus: function handleFocus() {
+    handleFocus: function handleFocus(e) {
         if (this.state.searchQuery === '' && !this.state.selection && this.props.showSuggestionsOnEmptyFocus === true) {
             this.setState({
                 suggestions: this.props.options,
@@ -295,7 +295,7 @@ var ReactAutocomplete = React.createClass({
         }
 
         if (this.props.onFocus) {
-            this.props.onFocus(value);
+            this.props.onFocus(e);
         }
     },
 
