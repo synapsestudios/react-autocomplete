@@ -72,7 +72,7 @@ var AutocompleteDemo = React.createClass({
                 <Autocomplete
                     className                   = {'demo__autocomplete'}
                     id                          = {'autocompleteDemo'}
-                    searchField                 = {'option'}
+                    labelField                  = {'option'}
                     options                     = {autocompleteOptions}
                     placeholder                 = {'What\'s your favorite fruit?'}
                     minimumCharacters           = {0}

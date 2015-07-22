@@ -24,7 +24,7 @@ var ReactAutocomplete = React.createClass({
     propTypes : {
         // makeSelection is responsible for responding when a user selects a suggested item
         // options is list of objects
-        searchField                 : React.PropTypes.string.isRequired,
+        labelField                  : React.PropTypes.string.isRequired,
         id                          : React.PropTypes.oneOfType([
             React.PropTypes.string,
             React.PropTypes.number
@@ -86,7 +86,7 @@ var ReactAutocomplete = React.createClass({
 
         return {
             dropdownIndex    : 0,
-            fuse             : this.createFuseObject(this.props.options, this.props.searchField),
+            fuse             : this.createFuseObject(this.props.options, this.props.labelField),
             suggestions      : [],
             selection        : selection || null,
             searchQuery      : this.props.value || '',
@@ -131,7 +131,7 @@ var ReactAutocomplete = React.createClass({
     {
         var state = {
             dropdownIndex : 0,
-            fuse          : this.createFuseObject(nextProps.options, nextProps.searchField)
+            fuse          : this.createFuseObject(nextProps.options, nextProps.labelField)
         };
 
         if (nextProps.value) {
@@ -146,7 +146,7 @@ var ReactAutocomplete = React.createClass({
         this.setDropdownPosition();
     },
 
-    createFuseObject(items, searchField)
+    createFuseObject(items, labelField)
     {
         var options = {
             caseSensitive    : false,
@@ -154,7 +154,7 @@ var ReactAutocomplete = React.createClass({
             shouldSort       : true,
             threshold        : 0.35,
             maxPatternLength : this.props.maximumCharacters,
-            keys             : [searchField]
+            keys             : [labelField]
         };
 
         return new Fuse(items, options);
@@ -246,12 +246,12 @@ var ReactAutocomplete = React.createClass({
             this.setState({
                 suggestions : [],
                 selection   : selection,
-                searchQuery : selection[this.props.searchField]
+                searchQuery : selection[this.props.labelField]
             });
         }
 
         if (this.props.onChange) {
-            this.props.onChange(selection[this.props.searchField]);
+            this.props.onChange(selection[this.props.labelField]);
         }
 
         if (this.props.makeSelection) {
@@ -416,7 +416,7 @@ var ReactAutocomplete = React.createClass({
         Component = this.props.InputComponent;
 
         if (! value) {
-            value = this.state.selection ? this.state.selection[this.props.searchField] : this.state.searchQuery;
+            value = this.state.selection ? this.state.selection[this.props.labelField] : this.state.searchQuery;
         }
 
         props = {
@@ -453,9 +453,9 @@ var ReactAutocomplete = React.createClass({
                 <li
                     className   = {classes}
                     onMouseDown = {_.partial(component.makeSelection, suggestion)}
-                    key         = {suggestion[component.props.searchField]}
+                    key         = {suggestion[component.props.labelField]}
                 >
-                    {suggestion[component.props.searchField]}
+                    {suggestion[component.props.labelField]}
                 </li>
             );
         });
