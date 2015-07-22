@@ -26,6 +26,7 @@ var ReactAutocomplete = React.createClass({
         // options is list of objects
         labelField                  : React.PropTypes.string,
         valueField                  : React.PropTypes.string,
+        translationFunction         : React.PropTypes.func,
         id                          : React.PropTypes.oneOfType([
             React.PropTypes.string,
             React.PropTypes.number
@@ -62,6 +63,7 @@ var ReactAutocomplete = React.createClass({
         return {
             labelField                  : 'label',
             valueField                  : 'value',
+            translationFunction         : null,
             makeSelection               : null,
             onChange                    : null,
             options                     : null,
@@ -90,7 +92,7 @@ var ReactAutocomplete = React.createClass({
 
         return {
             dropdownIndex    : 0,
-            fuse             : this.createFuseObject(this.props.options, this.props.labelField),
+            fuse             : this.createFuseObject(this.getOptions(), this.props.labelField),
             suggestions      : [],
             selection        : selection || null,
             searchQuery      : this.getDisplayValue(this.props.value) || '',
@@ -103,7 +105,7 @@ var ReactAutocomplete = React.createClass({
         var selectedOption;
 
         if (value) {
-            selectedOption = _(this.props.options).findWhere({label : value})       ;
+            selectedOption = _(this.props.options).findWhere({label : value});
 
             if (selectedOption) {
                 return selectedOption.label;
@@ -111,6 +113,26 @@ var ReactAutocomplete = React.createClass({
         }
 
         return null;
+    },
+
+    // Get options with translated labels, if translation function is set
+    getOptions : function()
+    {
+        var self = this,
+            t = this.props.translationFunction;
+
+        if (! this.options) {
+            if (t) {
+                this.options = this.props.options.map(function (option) {
+                    option[self.props.labelField] = t(option[self.props.labelField]);
+                    return option;
+                });
+            } else {
+                this.options = this.props.options;
+            }
+        }
+
+        return this.options;
     },
 
     componentDidMount()
@@ -155,6 +177,11 @@ var ReactAutocomplete = React.createClass({
 
         if (nextProps.value) {
             state.searchQuery = this.getDisplayValue(nextProps.value);
+        }
+
+        // Reset lazily-loaded options property if options have changed
+        if (! _(this.props.options).isEqual(nextProps.options)) {
+            this.options = null;
         }
 
         this.setState(state);
@@ -277,9 +304,16 @@ var ReactAutocomplete = React.createClass({
         return this.state.suggestions && this.state.suggestions.length > 0;
     },
 
-    handleChange(value)
+    handleChange(eventOrValue)
     {
-        var newState, suggestions, noPossibleMatches, updatingLastQuery;
+        var newState, suggestions, noPossibleMatches, updatingLastQuery, value;
+
+        // A CustomInput component may return an event instead of the value
+        if (_(eventOrValue).isObject()) {
+            value = eventOrValue.currentTarget.value;
+        } else {
+            value = eventOrValue;
+        }
 
         if (value.length >= this.props.minimumCharacters) {
             updatingLastQuery = value.substring(0, value.length - 1) === this.state.searchQuery;
@@ -302,7 +336,7 @@ var ReactAutocomplete = React.createClass({
         };
 
         if (value === '' && this.props.showSuggestionsOnEmptyFocus) {
-            newState.suggestions   = this.props.options;
+            newState.suggestions   = this.getOptions();
             newState.dropdownIndex = 0;
         }
 
@@ -338,7 +372,7 @@ var ReactAutocomplete = React.createClass({
             this.setState({
                 searchQuery   : '',
                 selection     : null,
-                suggestions   : this.props.options,
+                suggestions   : this.getOptions(),
                 dropdownIndex : 0
             });
         }
