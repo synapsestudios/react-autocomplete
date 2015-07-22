@@ -40,7 +40,6 @@ var ReactAutocomplete = React.createClass({
         maximumCharacters           : React.PropTypes.number,
         maximumSuggestions          : React.PropTypes.number,
         placeholder                 : React.PropTypes.string,
-        clearOnSelect               : React.PropTypes.bool,
         clearOnFocus                : React.PropTypes.bool,
         retainValueOnBlur           : React.PropTypes.bool,
         showSuggestionsOnEmptyFocus : React.PropTypes.bool,
@@ -74,7 +73,6 @@ var ReactAutocomplete = React.createClass({
             maximumSuggestions          : 5,
             placeholder                 : '',
             retainValueOnBlur           : false,
-            clearOnSelect               : false,
             showSuggestionsOnEmptyFocus : false,
             dropdownPosition            : null,
             dropdownHeight              : null,
@@ -240,19 +238,11 @@ var ReactAutocomplete = React.createClass({
     {
         var inputDOMNode = React.findDOMNode(this.refs.inputComponent.refs.input);
 
-        if (this.props.clearOnSelect) {
-            this.setState({
-                suggestions : [],
-                selection   : null,
-                searchQuery : ''
-            });
-        } else {
-            this.setState({
-                suggestions : [],
-                selection   : selection,
-                searchQuery : selection[this.props.labelField]
-            });
-        }
+        this.setState({
+            suggestions : [],
+            selection   : selection,
+            searchQuery : selection[this.props.labelField]
+        });
 
         if (this.props.onChange) {
             this.props.onChange(selection[this.props.valueField]);
