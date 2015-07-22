@@ -24,7 +24,7 @@ var ReactAutocomplete = React.createClass({
     propTypes : {
         // makeSelection is responsible for responding when a user selects a suggested item
         // options is list of objects
-        labelField                  : React.PropTypes.string.isRequired,
+        labelField                  : React.PropTypes.string,
         id                          : React.PropTypes.oneOfType([
             React.PropTypes.string,
             React.PropTypes.number
@@ -60,6 +60,7 @@ var ReactAutocomplete = React.createClass({
     getDefaultProps()
     {
         return {
+            labelField                  : 'label',
             makeSelection               : null,
             onChange                    : null,
             options                     : null,
