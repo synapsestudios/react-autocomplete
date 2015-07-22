@@ -25,6 +25,7 @@ var ReactAutocomplete = React.createClass({
         // makeSelection is responsible for responding when a user selects a suggested item
         // options is list of objects
         labelField                  : React.PropTypes.string,
+        valueField                  : React.PropTypes.string,
         id                          : React.PropTypes.oneOfType([
             React.PropTypes.string,
             React.PropTypes.number
@@ -40,6 +41,7 @@ var ReactAutocomplete = React.createClass({
         maximumSuggestions          : React.PropTypes.number,
         placeholder                 : React.PropTypes.string,
         clearOnSelect               : React.PropTypes.bool,
+        clearOnFocus                : React.PropTypes.bool,
         retainValueOnBlur           : React.PropTypes.bool,
         showSuggestionsOnEmptyFocus : React.PropTypes.bool,
         value                       : React.PropTypes.string, // Value to display in text box
@@ -61,6 +63,7 @@ var ReactAutocomplete = React.createClass({
     {
         return {
             labelField                  : 'label',
+            valueField                  : 'value',
             makeSelection               : null,
             onChange                    : null,
             options                     : null,
@@ -252,7 +255,7 @@ var ReactAutocomplete = React.createClass({
         }
 
         if (this.props.onChange) {
-            this.props.onChange(selection[this.props.labelField]);
+            this.props.onChange(selection[this.props.valueField]);
         }
 
         if (this.props.makeSelection) {
@@ -324,8 +327,9 @@ var ReactAutocomplete = React.createClass({
 
     handleFocus(e)
     {
-        if (this.state.searchQuery === '' && ! this.state.selection && this.props.showSuggestionsOnEmptyFocus === true) {
+        if (this.props.clearOnFocus && ! this.state.selection && this.props.showSuggestionsOnEmptyFocus === true) {
             this.setState({
+                searchQuery   : '',
                 suggestions   : this.props.options,
                 dropdownIndex : 0
             });
@@ -342,8 +346,18 @@ var ReactAutocomplete = React.createClass({
      *
      * @param  Event event
      */
-    handleKeyDown(value, event)
+    handleKeyDown()
     {
+        var event;
+
+        // The default InputComponent includes the current value as the first arg and the event as the second.
+        // If InputComponent is overridden, this value will likely not be included.
+        if (_(arguments[0]).isObject()) {
+            event = arguments[0];
+        } else {
+            event = arguments[1];
+        }
+
         event.stopPropagation();
 
         var code = event.keyCode ? event.keyCode : event.which;
