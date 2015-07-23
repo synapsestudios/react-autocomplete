@@ -112,7 +112,7 @@ var ReactAutocomplete = React.createClass({
             }
         }
 
-        return null;
+        return value;
     },
 
     // Get options with translated labels, if translation function is set
@@ -170,21 +170,10 @@ var ReactAutocomplete = React.createClass({
 
     componentWillReceiveProps(nextProps)
     {
-        var state = {
-            dropdownIndex : 0,
-            fuse          : this.createFuseObject(nextProps.options, nextProps.labelField)
-        };
-
-        if (nextProps.value) {
-            state.searchQuery = this.getDisplayValue(nextProps.value);
-        }
-
         // Reset lazily-loaded options property if options have changed
         if (! _(this.props.options).isEqual(nextProps.options)) {
             this.options = null;
         }
-
-        this.setState(state);
     },
 
     componentDidUpdate(prevProps, prevState)
@@ -465,12 +454,9 @@ var ReactAutocomplete = React.createClass({
     {
         var props, value, Component;
 
-        value     = this.getDisplayValue(this.props.value);
-        Component = this.props.InputComponent;
-
-        if (! value) {
-            value = this.state.selection ? this.state.selection[this.props.labelField] : this.state.searchQuery;
-        }
+        value = this.state.selection ?
+            this.state.selection[this.props.labelField] :
+            this.state.searchQuery;
 
         props = {
             ref          : 'inputComponent',
@@ -486,6 +472,7 @@ var ReactAutocomplete = React.createClass({
             type         : 'text'
         };
 
+        Component = this.props.InputComponent;
         _.extend(props, this.props.inputProps);
 
         return React.createElement(Component, props);
