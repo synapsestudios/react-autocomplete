@@ -251,8 +251,6 @@ var ReactAutocomplete = React.createClass({
     },
 
     makeSelection: function makeSelection(selection) {
-        var inputDOMNode = React.findDOMNode(this.refs.inputComponent.refs.input);
-
         this.setState({
             suggestions: [],
             selection: selection,
@@ -266,8 +264,6 @@ var ReactAutocomplete = React.createClass({
         if (this.props.makeSelection) {
             this.props.makeSelection(selection);
         }
-
-        inputDOMNode.blur();
     },
 
     dropdownVisible: function dropdownVisible() {
