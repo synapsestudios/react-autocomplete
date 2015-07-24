@@ -6,7 +6,6 @@ var React = require('react');
 var classNames = require('classnames');
 var TextInput = require('synfrastructure').Input;
 var Fuse = require('fuse.js');
-var ScrollListenerMixin = require('react-scroll-components').ScrollListenerMixin;
 
 var KC_ENTER = 13,
     KC_ESC = 27,
@@ -29,6 +28,8 @@ var ReactAutocomplete = React.createClass({
         id: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number]).isRequired,
         makeSelection: React.PropTypes.func,
         onChange: React.PropTypes.func,
+        onBlur: React.PropTypes.func,
+        onFocus: React.PropTypes.func,
         options: React.PropTypes.arrayOf(React.PropTypes.object),
         initialValue: React.PropTypes.object,
         minimumCharacters: React.PropTypes.number,
@@ -42,6 +43,7 @@ var ReactAutocomplete = React.createClass({
         dropdownPosition: React.PropTypes.oneOf(['top', 'bottom']),
         dropdownHeight: React.PropTypes.number,
         InputComponent: React.PropTypes.any,
+        inputProps: React.PropTypes.object,
         className: React.PropTypes.string
     },
 
@@ -69,6 +71,7 @@ var ReactAutocomplete = React.createClass({
             dropdownPosition: null,
             dropdownHeight: null,
             InputComponent: TextInput,
+            inputProps: {},
             className: null
         };
     },
@@ -277,14 +280,22 @@ var ReactAutocomplete = React.createClass({
         }
 
         this.setState(state);
+
+        if (this.props.onBlur) {
+            this.props.onBlur(e);
+        }
     },
 
-    handleFocus: function handleFocus() {
+    handleFocus: function handleFocus(e) {
         if (this.state.searchQuery === '' && !this.state.selection && this.props.showSuggestionsOnEmptyFocus === true) {
             this.setState({
                 suggestions: this.props.options,
                 dropdownIndex: 0
             });
+        }
+
+        if (this.props.onFocus) {
+            this.props.onFocus(e);
         }
     },
 
@@ -352,20 +363,22 @@ var ReactAutocomplete = React.createClass({
             componentPosition = React.findDOMNode(this.refs.autocomplete).getBoundingClientRect().top,
             dropdownPosition = componentPosition + offset > winHeight ? 'top' : 'bottom';
 
-        if (!this.props.dropdownPosition && this.state.dropdownPosition != dropdownPosition) {
+        if (!this.props.dropdownPosition && this.state.dropdownPosition !== dropdownPosition) {
             this.setState({ dropdownPosition: dropdownPosition });
         }
     },
 
     renderInput: function renderInput() {
-        var value = this.props.value,
-            Component = this.props.InputComponent;
+        var props, value, Component;
+
+        value = this.props.value;
+        Component = this.props.InputComponent;
 
         if (!value) {
             value = this.state.selection ? this.state.selection[this.props.searchField] : this.state.searchQuery;
         }
 
-        return React.createElement(Component, {
+        props = {
             ref: 'inputComponent',
             className: 'autocomplete__input',
             id: this.props.id,
@@ -378,7 +391,11 @@ var ReactAutocomplete = React.createClass({
             placeholder: this.props.placeholder,
             autoComplete: false,
             type: 'text'
-        });
+        };
+
+        _.extend(props, this.props.inputProps);
+
+        return React.createElement(Component, props);
     },
 
     renderDropdownItems: function renderDropdownItems() {
