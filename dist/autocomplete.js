@@ -24,22 +24,23 @@ var ReactAutocomplete = React.createClass({
     propTypes: {
         // makeSelection is responsible for responding when a user selects a suggested item
         // options is list of objects
-        searchField: React.PropTypes.string.isRequired,
+        labelField: React.PropTypes.string,
+        valueField: React.PropTypes.string,
+        translationFunction: React.PropTypes.func,
         id: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number]).isRequired,
         makeSelection: React.PropTypes.func,
         onChange: React.PropTypes.func,
         onBlur: React.PropTypes.func,
         onFocus: React.PropTypes.func,
         options: React.PropTypes.arrayOf(React.PropTypes.object),
-        initialValue: React.PropTypes.object,
         minimumCharacters: React.PropTypes.number,
         maximumCharacters: React.PropTypes.number,
         maximumSuggestions: React.PropTypes.number,
         placeholder: React.PropTypes.string,
-        clearOnSelect: React.PropTypes.bool,
+        clearOnFocus: React.PropTypes.bool,
         retainValueOnBlur: React.PropTypes.bool,
         showSuggestionsOnEmptyFocus: React.PropTypes.bool,
-        value: React.PropTypes.string, // Value to display in text box
+        value: React.PropTypes.string,
         dropdownPosition: React.PropTypes.oneOf(['top', 'bottom']),
         dropdownHeight: React.PropTypes.number,
         InputComponent: React.PropTypes.any,
@@ -56,17 +57,18 @@ var ReactAutocomplete = React.createClass({
      */
     getDefaultProps: function getDefaultProps() {
         return {
+            labelField: 'label',
+            valueField: 'value',
+            translationFunction: null,
             makeSelection: null,
             onChange: null,
             options: null,
-            initialValue: null,
             value: null,
             minimumCharacters: 3,
             maximumCharacters: 32,
             maximumSuggestions: 5,
             placeholder: '',
             retainValueOnBlur: false,
-            clearOnSelect: false,
             showSuggestionsOnEmptyFocus: false,
             dropdownPosition: null,
             dropdownHeight: null,
@@ -77,16 +79,54 @@ var ReactAutocomplete = React.createClass({
     },
 
     getInitialState: function getInitialState() {
-        var selection = this.props.value || this.props.initialValue;
+        var where = {},
+            selection;
+
+        where[this.props.valueField] = this.props.value;
+
+        selection = _(this.props.options).findWhere(where);
 
         return {
             dropdownIndex: 0,
-            fuse: this.createFuseObject(this.props.options, this.props.searchField),
+            fuse: this.createFuseObject(this.getOptions(), this.props.labelField),
             suggestions: [],
             selection: selection || null,
-            searchQuery: this.props.value || '',
+            searchQuery: this.getDisplayValue(this.props.value) || '',
             dropdownPosition: this.props.dropdownPosition
         };
+    },
+
+    getDisplayValue: function getDisplayValue(value) {
+        var selectedOption;
+
+        if (value) {
+            selectedOption = _(this.props.options).findWhere({ label: value });
+
+            if (selectedOption) {
+                return selectedOption.label;
+            }
+        }
+
+        return value;
+    },
+
+    // Get options with translated labels, if translation function is set
+    getOptions: function getOptions() {
+        var self = this,
+            t = this.props.translationFunction;
+
+        if (!this.options) {
+            if (t) {
+                this.options = this.props.options.map(function (option) {
+                    option[self.props.labelField] = t(option[self.props.labelField]);
+                    return option;
+                });
+            } else {
+                this.options = this.props.options;
+            }
+        }
+
+        return this.options;
     },
 
     componentDidMount: function componentDidMount() {
@@ -114,30 +154,24 @@ var ReactAutocomplete = React.createClass({
     },
 
     componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
-        var state = {
-            dropdownIndex: 0,
-            fuse: this.createFuseObject(nextProps.options, nextProps.searchField)
-        };
-
-        if (nextProps.value) {
-            state.searchQuery = nextProps.value;
+        // Reset lazily-loaded options property if options have changed
+        if (!_(this.props.options).isEqual(nextProps.options)) {
+            this.options = null;
         }
-
-        this.setState(state);
     },
 
     componentDidUpdate: function componentDidUpdate(prevProps, prevState) {
         this.setDropdownPosition();
     },
 
-    createFuseObject: function createFuseObject(items, searchField) {
+    createFuseObject: function createFuseObject(items, labelField) {
         var options = {
             caseSensitive: false,
             includeScore: false,
             shouldSort: true,
             threshold: 0.35,
             maxPatternLength: this.props.maximumCharacters,
-            keys: [searchField]
+            keys: [labelField]
         };
 
         return new Fuse(items, options);
@@ -206,39 +240,34 @@ var ReactAutocomplete = React.createClass({
     },
 
     makeSelection: function makeSelection(selection) {
-        var inputDOMNode = React.findDOMNode(this.refs.inputComponent.refs.input);
-
-        if (this.props.clearOnSelect) {
-            this.setState({
-                suggestions: [],
-                selection: null,
-                searchQuery: ''
-            });
-        } else {
-            this.setState({
-                suggestions: [],
-                selection: selection,
-                searchQuery: selection[this.props.searchField]
-            });
-        }
+        this.setState({
+            suggestions: [],
+            selection: selection,
+            searchQuery: selection[this.props.labelField]
+        });
 
         if (this.props.onChange) {
-            this.props.onChange(selection[this.props.searchField]);
+            this.props.onChange(selection[this.props.valueField]);
         }
 
         if (this.props.makeSelection) {
             this.props.makeSelection(selection);
         }
-
-        inputDOMNode.blur();
     },
 
     dropdownVisible: function dropdownVisible() {
         return this.state.suggestions && this.state.suggestions.length > 0;
     },
 
-    handleChange: function handleChange(value) {
-        var newState, suggestions, noPossibleMatches, updatingLastQuery;
+    handleChange: function handleChange(eventOrValue) {
+        var newState, suggestions, noPossibleMatches, updatingLastQuery, value;
+
+        // A CustomInput component may return an event instead of the value
+        if (_(eventOrValue).isObject()) {
+            value = eventOrValue.currentTarget.value;
+        } else {
+            value = eventOrValue;
+        }
 
         if (value.length >= this.props.minimumCharacters) {
             updatingLastQuery = value.substring(0, value.length - 1) === this.state.searchQuery;
@@ -257,7 +286,7 @@ var ReactAutocomplete = React.createClass({
         };
 
         if (value === '' && this.props.showSuggestionsOnEmptyFocus) {
-            newState.suggestions = this.props.options;
+            newState.suggestions = this.getOptions();
             newState.dropdownIndex = 0;
         }
 
@@ -287,9 +316,11 @@ var ReactAutocomplete = React.createClass({
     },
 
     handleFocus: function handleFocus(e) {
-        if (this.state.searchQuery === '' && !this.state.selection && this.props.showSuggestionsOnEmptyFocus === true) {
+        if (this.props.clearOnFocus && this.props.showSuggestionsOnEmptyFocus === true) {
             this.setState({
-                suggestions: this.props.options,
+                searchQuery: '',
+                selection: null,
+                suggestions: this.getOptions(),
                 dropdownIndex: 0
             });
         }
@@ -305,7 +336,17 @@ var ReactAutocomplete = React.createClass({
      *
      * @param  Event event
      */
-    handleKeyDown: function handleKeyDown(value, event) {
+    handleKeyDown: function handleKeyDown() {
+        var event;
+
+        // The default InputComponent includes the current value as the first arg and the event as the second.
+        // If InputComponent is overridden, this value will likely not be included.
+        if (_(arguments[0]).isObject()) {
+            event = arguments[0];
+        } else {
+            event = arguments[1];
+        }
+
         event.stopPropagation();
 
         var code = event.keyCode ? event.keyCode : event.which;
@@ -371,12 +412,7 @@ var ReactAutocomplete = React.createClass({
     renderInput: function renderInput() {
         var props, value, Component;
 
-        value = this.props.value;
-        Component = this.props.InputComponent;
-
-        if (!value) {
-            value = this.state.selection ? this.state.selection[this.props.searchField] : this.state.searchQuery;
-        }
+        value = this.state.selection ? this.state.selection[this.props.labelField] : this.state.searchQuery;
 
         props = {
             ref: 'inputComponent',
@@ -386,13 +422,13 @@ var ReactAutocomplete = React.createClass({
             onChange: this.handleChange,
             onBlur: this.handleBlur,
             onFocus: this.handleFocus,
-            initialValue: null,
             value: value,
             placeholder: this.props.placeholder,
             autoComplete: false,
             type: 'text'
         };
 
+        Component = this.props.InputComponent;
         _.extend(props, this.props.inputProps);
 
         return React.createElement(Component, props);
@@ -412,9 +448,9 @@ var ReactAutocomplete = React.createClass({
                 {
                     className: classes,
                     onMouseDown: _.partial(component.makeSelection, suggestion),
-                    key: suggestion[component.props.searchField]
+                    key: suggestion[component.props.labelField]
                 },
-                suggestion[component.props.searchField]
+                suggestion[component.props.labelField]
             );
         });
     },
