@@ -3,7 +3,9 @@ CHANGELOG
 
 ## v0.2.0 - 2015-07-24
 * Allow displayed label and submitted values to differ
-* Replace clearOnSelect with clearOnFocus
+* Accept inputProps prop
+* Accept onBlur and onFocus props
+* Replace clearOnSelect prop with clearOnFocus
 * Accept optional translationFunction prop
 * Various fixes and adjustments
 
