@@ -235,7 +235,7 @@ export default React.createClass({
     },
 
     adjustScrollPosition(dropdownIndex) {
-        const list          = this.refs.list.getDOMNode();
+        const list          = ReactDOM.findDOMNode(this.refs.list);
         const selectedChild = list.children[0].children[dropdownIndex];
         const minScroll     = selectedChild.offsetTop + selectedChild.offsetHeight - list.clientHeight;
         const maxScroll     = selectedChild.offsetTop;
@@ -348,6 +348,8 @@ export default React.createClass({
                 dropdownIndex : 0
             });
         }
+
+        this.handleChange(e);
 
         if (this.props.onFocus) {
             this.props.onFocus(e);

@@ -1,5 +1,5 @@
 import React from 'react';
-import Autocomplete from './input-autocomplete';
+import Autocomplete from '../src/Autocomplete';
 
 require('./demo.scss');
 
