@@ -4,4 +4,4 @@ exports.libname = pkg.name;
 exports.path    = __dirname;
 exports.version = pkg.version;
 
-module.exports = { require('./dist/accordion') };
+module.exports = { require('./dist/autocomplete') };

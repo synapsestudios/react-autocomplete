@@ -17,7 +17,6 @@
     "fuse.js": "1.2.2",
     "lodash": "3.9.3",
     "synfrastructure": "3.0.0",
-    "synapse-common": "1.8.1"
   },
   "devDependencies": {
     "autoprefixer-core": "5.2.0",
