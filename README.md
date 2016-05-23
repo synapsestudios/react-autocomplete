@@ -5,6 +5,9 @@ A lightweight autocomplete input component
 ### Install
 `npm install --save synapse-react-autocomplete`
 
+### Usage
+`import Autocomplete from 'synapse-react-autocomplete';`
+
 ### Props
 ```
 className : string
