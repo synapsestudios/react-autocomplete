@@ -6,10 +6,12 @@
 // *******************************************
 // *******************************************
 
+@import "./reset.scss";
 @import "../scss/autocomplete";
 
 body {
-    background : #f4f4f4;
+    background  : #f4f4f4;
+    font-family : -apple-system, ".SFNSText-Regular", "San Francisco", "Roboto", "Segoe UI", "Helvetica Neue", "Lucida Grande", sans-serif;
 }
 
 .h1 {
