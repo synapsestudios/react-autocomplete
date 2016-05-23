@@ -1,18 +1,14 @@
-'use strict';
+import React from 'react';
+import {Input as TextInput} from 'synfrastructure';
+import Autocomplete from '../src/autocomplete';
 
-let React        = require('react');
-
-var TextInput    = require('./input-text');
-let Autocomplete = require('../src/autocomplete');
-
-let AutocompleteInput = React.createClass({
-
+export default React.createClass({
     displayName : 'AutocompleteInput',
 
     propTypes : {
         // makeSelection is responsible for responding when a user selects a suggested item
         // options is list of objects
-        searchField                 : React.PropTypes.string.isRequired,
+        searchField                 : React.PropTypes.string,
         id                          : React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number ]).isRequired,
         makeSelection               : React.PropTypes.func,
         onChange                    : React.PropTypes.func,
@@ -86,5 +82,3 @@ let AutocompleteInput = React.createClass({
     }
 
 });
-
-module.exports = AutocompleteInput;

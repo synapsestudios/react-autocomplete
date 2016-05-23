@@ -1,11 +1,7 @@
-'use strict';
+import React      from 'react';
+import classNames from 'classnames';
 
-var React      = require('react');
-var classNames = require('classnames');
-var Input      = require('synfrastructure').Input;
-
-var TextInput = React.createClass({
-
+export default React.createClass({
     displayName : 'TextInput',
 
     propTypes : {
@@ -55,8 +51,7 @@ var TextInput = React.createClass({
         };
     },
 
-    render : function()
-    {
+    render() {
         var classes = {
             'input--disabled'    : this.props.disabled,
             'input--collapse'    : this.props.collapse
@@ -65,7 +60,7 @@ var TextInput = React.createClass({
         classes[this.props.className] = this.props.className;
 
         return (
-            <Input
+            <input
                 ref         = 'input'
                 className   = {classNames(classes)}
                 id          = {this.props.id}
@@ -82,7 +77,4 @@ var TextInput = React.createClass({
             />
         );
     }
-
 });
-
-module.exports = TextInput;

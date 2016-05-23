@@ -1,23 +1,26 @@
-const win = typeof window !== 'undefined' ? window : false;
-
+import React from 'react';
+import ReactDOM from 'react-dom';
 import isEqual from 'lodash/isEqual';
+import isObject from 'lodash/isObject';
 import omit from 'lodash/omit';
+import bind from 'lodash/bind';
 import extend from 'lodash/extend';
 import partial from 'lodash/partial';
-import React from 'react';
+import find from 'lodash/find';
 import classNames from 'classnames';
-import { Input as TextInput } from 'synfrastructure';
 import Fuse from 'fuse.js';
 
-var KC_ENTER     = 13,
-    KC_ESC       = 27,
-    KC_UP        = 38,
-    KC_DOWN      = 40,
-    KC_PAGE_UP   = 33,
+const win = typeof window !== 'undefined' ? window : false;
+
+const KC_ENTER = 13,
+    KC_ESC = 27,
+    KC_UP = 38,
+    KC_DOWN = 40,
+    KC_PAGE_UP = 33,
     KC_PAGE_DOWN = 34;
 
 // Number of items to jump up/down using page up / page down
-var PAGE_UP_DOWN_JUMP = 5;
+const PAGE_UP_DOWN_JUMP = 5;
 
 export default React.createClass({
 
@@ -78,19 +81,19 @@ export default React.createClass({
             showSuggestionsOnEmptyFocus : false,
             dropdownPosition            : null,
             dropdownHeight              : null,
-            InputComponent              : TextInput,
+            InputComponent              : 'input',
             inputProps                  : {},
             className                   : null
         };
     },
 
-    getInitialState()
-    {
-        var where = {}, selection;
+    getInitialState() {
+        let where = {},
+            selection;
 
         where[this.props.valueField] = this.props.value;
 
-        selection = _(this.props.options).findWhere(where);
+        selection = find(this.props.options, where);
 
         return {
             dropdownIndex    : 0,
@@ -102,12 +105,9 @@ export default React.createClass({
         };
     },
 
-    getDisplayValue : function(value)
-    {
-        var selectedOption;
-
+    getDisplayValue : function(value) {
         if (value) {
-            selectedOption = _(this.props.options).findWhere({label : value});
+            let selectedOption = find(this.props.options, {label : value});
 
             if (selectedOption) {
                 return selectedOption.label;
@@ -118,9 +118,8 @@ export default React.createClass({
     },
 
     // Get options with translated labels, if translation function is set
-    getOptions : function()
-    {
-        var self = this,
+    getOptions() {
+        const self = this,
             t = this.props.translationFunction;
 
         if (! this.options) {
@@ -137,14 +136,13 @@ export default React.createClass({
         return this.options;
     },
 
-    componentDidMount()
-    {
+    componentDidMount() {
         this.setDropdownPosition();
     },
 
-    shouldComponentUpdate(nextProps, nextState)
-    {
-        var filterIgnoredProps, shallowPropsChanged;
+    shouldComponentUpdate(nextProps, nextState) {
+        let filterIgnoredProps,
+              shallowPropsChanged;
 
         if (! isEqual(nextState, this.state)) {
             return true;
@@ -165,27 +163,23 @@ export default React.createClass({
         );
     },
 
-    componentWillMount()
-    {
-        this.makeCurrentSelection = _(this.makeCurrentSelection).bind(this);
+    componentWillMount() {
+        this.makeCurrentSelection = bind(this.makeCurrentSelection, this);
     },
 
-    componentWillReceiveProps(nextProps)
-    {
+    componentWillReceiveProps(nextProps) {
         // Reset lazily-loaded options property if options have changed
-        if (! _(this.props.options).isEqual(nextProps.options)) {
+        if (! isEqual(this.props.options, nextProps.options)) {
             this.options = null;
         }
     },
 
-    componentDidUpdate(prevProps, prevState)
-    {
+    componentDidUpdate(prevProps, prevState) {
         this.setDropdownPosition();
     },
 
-    createFuseObject(items, labelField)
-    {
-        var options = {
+    createFuseObject(items, labelField) {
+        const options = {
             caseSensitive    : false,
             includeScore     : false,
             shouldSort       : true,
@@ -197,9 +191,8 @@ export default React.createClass({
         return new Fuse(items, options);
     },
 
-    getSuggestions(query)
-    {
-        var suggestions = this.state.fuse.search(query);
+    getSuggestions(query) {
+        let suggestions = this.state.fuse.search(query);
 
         suggestions = suggestions.slice(0, this.props.maximumSuggestions);
 
@@ -210,9 +203,8 @@ export default React.createClass({
         return suggestions;
     },
 
-    incrementAutoselect(amount)
-    {
-        var maxPosition = (this.state.suggestions.length - 1);
+    incrementAutoselect(amount) {
+        const maxPosition = (this.state.suggestions.length - 1);
 
         if (amount === undefined) {
             amount = 1;
@@ -225,8 +217,7 @@ export default React.createClass({
         }
     },
 
-    decrementAutoselect(amount)
-    {
+    decrementAutoselect(amount) {
         if (amount === undefined) {
             amount = 1;
         }
@@ -238,20 +229,16 @@ export default React.createClass({
         }
     },
 
-    updateDropdownPosition(newPosition)
-    {
+    updateDropdownPosition(newPosition) {
         this.setState({dropdownIndex : newPosition});
         this.adjustScrollPosition(newPosition);
     },
 
-    adjustScrollPosition(dropdownIndex)
-    {
-        var list, selectedChild, minScroll, maxScroll;
-
-        list          = this.refs.list.getDOMNode();
-        selectedChild = list.children[0].children[dropdownIndex];
-        minScroll     = selectedChild.offsetTop + selectedChild.offsetHeight - list.clientHeight;
-        maxScroll     = selectedChild.offsetTop;
+    adjustScrollPosition(dropdownIndex) {
+        const list          = this.refs.list.getDOMNode();
+        const selectedChild = list.children[0].children[dropdownIndex];
+        const minScroll     = selectedChild.offsetTop + selectedChild.offsetHeight - list.clientHeight;
+        const maxScroll     = selectedChild.offsetTop;
 
         if (list.scrollTop < minScroll) {
             list.scrollTop = minScroll;
@@ -260,8 +247,7 @@ export default React.createClass({
         }
     },
 
-    makeCurrentSelection()
-    {
+    makeCurrentSelection() {
         if (this.state.suggestions.length === 0) {
             return;
         }
@@ -269,8 +255,7 @@ export default React.createClass({
         this.makeSelection(this.state.suggestions[this.state.dropdownIndex]);
     },
 
-    makeSelection(selection)
-    {
+    makeSelection(selection) {
         this.setState({
             suggestions : [],
             selection   : selection,
@@ -286,17 +271,19 @@ export default React.createClass({
         }
     },
 
-    dropdownVisible()
-    {
+    dropdownVisible() {
         return this.state.suggestions && this.state.suggestions.length > 0;
     },
 
-    handleChange(eventOrValue)
-    {
-        var newState, suggestions, noPossibleMatches, updatingLastQuery, value;
+    handleChange(eventOrValue) {
+        let newState,
+            suggestions,
+            noPossibleMatches,
+            updatingLastQuery,
+            value;
 
         // A CustomInput component may return an event instead of the value
-        if (_(eventOrValue).isObject()) {
+        if (isObject(eventOrValue)) {
             value = eventOrValue.currentTarget.value;
         } else {
             value = eventOrValue;
@@ -334,9 +321,8 @@ export default React.createClass({
         }
     },
 
-    handleBlur(e)
-    {
-        var state = {};
+    handleBlur(e) {
+        const state = {};
 
         if (this.state.selection === null) {
             state.suggestions = [];
@@ -353,8 +339,7 @@ export default React.createClass({
         }
     },
 
-    handleFocus(e)
-    {
+    handleFocus(e) {
         if (this.props.clearOnFocus && this.props.showSuggestionsOnEmptyFocus === true) {
             this.setState({
                 searchQuery   : '',
@@ -375,13 +360,12 @@ export default React.createClass({
      *
      * @param  Event event
      */
-    handleKeyDown()
-    {
-        var event;
+    handleKeyDown() {
+        let event;
 
         // The default InputComponent includes the current value as the first arg and the event as the second.
         // If InputComponent is overridden, this value will likely not be included.
-        if (_(arguments[0]).isObject()) {
+        if (isObject(arguments[0])) {
             event = arguments[0];
         } else {
             event = arguments[1];
@@ -389,7 +373,7 @@ export default React.createClass({
 
         event.stopPropagation();
 
-        var code = event.keyCode ? event.keyCode : event.which;
+        const code = event.keyCode ? event.keyCode : event.which;
 
         switch (code) {
             case KC_UP:
@@ -434,15 +418,14 @@ export default React.createClass({
      * Set suggestion list dropdown based on Y postion to viewport
      * explicitly passing dropdownPosition prop will disable this
      */
-    setDropdownPosition()
-    {
+    setDropdownPosition() {
         if (! win) {
             return null;
         }
 
-        var offset            = this.props.dropdownHeight || 250,
+        const offset            = this.props.dropdownHeight || 250,
             winHeight         = win.innerHeight,
-            componentPosition = React.findDOMNode(this.refs.autocomplete).getBoundingClientRect().top,
+            componentPosition = ReactDOM.findDOMNode(this.refs.autocomplete).getBoundingClientRect().top,
             dropdownPosition  = (componentPosition + offset > winHeight) ?
                 'top' : 'bottom';
 
@@ -454,15 +437,12 @@ export default React.createClass({
         }
     },
 
-    renderInput()
-    {
-        var props, value, Component;
-
-        value = this.state.selection ?
+    renderInput() {
+        const value = this.state.selection ?
             this.state.selection[this.props.labelField] :
             this.state.searchQuery;
 
-        props = {
+        const props = {
             ref          : 'inputComponent',
             className    : 'autocomplete__input',
             id           : this.props.id,
@@ -476,18 +456,16 @@ export default React.createClass({
             type         : 'text'
         };
 
-        Component = this.props.InputComponent;
         extend(props, this.props.inputProps);
 
-        return React.createElement(Component, props);
+        return React.createElement(this.props.InputComponent, props);
     },
 
-    renderDropdownItems()
-    {
-        var component = this;
+    renderDropdownItems() {
+        const component = this;
 
         return this.state.suggestions.map(function(suggestion, index) {
-            var classes = classNames({
+            const classes = classNames({
                 'autocomplete__item'           : true,
                 'autocomplete__item--selected' : index === component.state.dropdownIndex
             });
@@ -504,20 +482,17 @@ export default React.createClass({
         });
     },
 
-    renderDropdown()
-    {
-        var classes,
-            dropdownStyles,
-            dropdownHeight;
+    renderDropdown() {
+        let dropdownStyles;
 
-        classes = {
+        const classes = {
             'autocomplete__dropdown'          : true,
             'autocomplete__dropdown--top'     : this.state.dropdownPosition === 'top',
             'autocomplete__dropdown--bottom'  : this.state.dropdownPosition === 'bottom',
             'autocomplete__dropdown--visible' : this.dropdownVisible()
         };
 
-        dropdownHeight = this.dropdownVisible() ?
+        const dropdownHeight = this.dropdownVisible() ?
             this.props.dropdownHeight : 0;
 
         if (this.props.dropdownHeight) {
@@ -541,7 +516,7 @@ export default React.createClass({
 
     render()
     {
-        var classes = [
+        const classes = [
             'autocomplete',
             this.props.className
         ];

@@ -1,13 +1,46 @@
-const win = typeof window !== 'undefined' ? window : false;
+'use strict';
 
-import isEqual from 'lodash/isEqual';
-import omit from 'lodash/omit';
-import extend from 'lodash/extend';
-import partial from 'lodash/partial';
-import React from 'react';
-import classNames from 'classnames';
-import { Input as TextInput } from 'synfrastructure';
-import Fuse from 'fuse.js';
+exports.__esModule = true;
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _react = require('react');
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactDom = require('react-dom');
+
+var _reactDom2 = _interopRequireDefault(_reactDom);
+
+var _lodashIsEqual = require('lodash/isEqual');
+
+var _lodashIsEqual2 = _interopRequireDefault(_lodashIsEqual);
+
+var _lodashOmit = require('lodash/omit');
+
+var _lodashOmit2 = _interopRequireDefault(_lodashOmit);
+
+var _lodashExtend = require('lodash/extend');
+
+var _lodashExtend2 = _interopRequireDefault(_lodashExtend);
+
+var _lodashPartial = require('lodash/partial');
+
+var _lodashPartial2 = _interopRequireDefault(_lodashPartial);
+
+var _lodashFind = require('lodash/find');
+
+var _lodashFind2 = _interopRequireDefault(_lodashFind);
+
+var _classnames = require('classnames');
+
+var _classnames2 = _interopRequireDefault(_classnames);
+
+var _fuseJs = require('fuse.js');
+
+var _fuseJs2 = _interopRequireDefault(_fuseJs);
+
+var win = typeof window !== 'undefined' ? window : false;
 
 var KC_ENTER = 13,
     KC_ESC = 27,
@@ -19,35 +52,35 @@ var KC_ENTER = 13,
 // Number of items to jump up/down using page up / page down
 var PAGE_UP_DOWN_JUMP = 5;
 
-const ReactAutocomplete = React.createClass({
+exports['default'] = _react2['default'].createClass({
 
     displayName: 'ReactAutocomplete',
 
     propTypes: {
         // makeSelection is responsible for responding when a user selects a suggested item
         // options is list of objects
-        labelField: React.PropTypes.string,
-        valueField: React.PropTypes.string,
-        translationFunction: React.PropTypes.func,
-        id: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number]).isRequired,
-        makeSelection: React.PropTypes.func,
-        onChange: React.PropTypes.func,
-        onBlur: React.PropTypes.func,
-        onFocus: React.PropTypes.func,
-        options: React.PropTypes.arrayOf(React.PropTypes.object),
-        minimumCharacters: React.PropTypes.number,
-        maximumCharacters: React.PropTypes.number,
-        maximumSuggestions: React.PropTypes.number,
-        placeholder: React.PropTypes.string,
-        clearOnFocus: React.PropTypes.bool,
-        retainValueOnBlur: React.PropTypes.bool,
-        showSuggestionsOnEmptyFocus: React.PropTypes.bool,
-        value: React.PropTypes.string,
-        dropdownPosition: React.PropTypes.oneOf(['top', 'bottom']),
-        dropdownHeight: React.PropTypes.number,
-        InputComponent: React.PropTypes.any,
-        inputProps: React.PropTypes.object,
-        className: React.PropTypes.string
+        labelField: _react2['default'].PropTypes.string,
+        valueField: _react2['default'].PropTypes.string,
+        translationFunction: _react2['default'].PropTypes.func,
+        id: _react2['default'].PropTypes.oneOfType([_react2['default'].PropTypes.string, _react2['default'].PropTypes.number]).isRequired,
+        makeSelection: _react2['default'].PropTypes.func,
+        onChange: _react2['default'].PropTypes.func,
+        onBlur: _react2['default'].PropTypes.func,
+        onFocus: _react2['default'].PropTypes.func,
+        options: _react2['default'].PropTypes.arrayOf(_react2['default'].PropTypes.object),
+        minimumCharacters: _react2['default'].PropTypes.number,
+        maximumCharacters: _react2['default'].PropTypes.number,
+        maximumSuggestions: _react2['default'].PropTypes.number,
+        placeholder: _react2['default'].PropTypes.string,
+        clearOnFocus: _react2['default'].PropTypes.bool,
+        retainValueOnBlur: _react2['default'].PropTypes.bool,
+        showSuggestionsOnEmptyFocus: _react2['default'].PropTypes.bool,
+        value: _react2['default'].PropTypes.string,
+        dropdownPosition: _react2['default'].PropTypes.oneOf(['top', 'bottom']),
+        dropdownHeight: _react2['default'].PropTypes.number,
+        InputComponent: _react2['default'].PropTypes.any,
+        inputProps: _react2['default'].PropTypes.object,
+        className: _react2['default'].PropTypes.string
     },
 
     /**
@@ -57,7 +90,7 @@ const ReactAutocomplete = React.createClass({
      *
      * @link https://github.com/krisk/Fuse
      */
-    getDefaultProps() {
+    getDefaultProps: function getDefaultProps() {
         return {
             labelField: 'label',
             valueField: 'value',
@@ -74,19 +107,19 @@ const ReactAutocomplete = React.createClass({
             showSuggestionsOnEmptyFocus: false,
             dropdownPosition: null,
             dropdownHeight: null,
-            InputComponent: TextInput,
+            InputComponent: 'input',
             inputProps: {},
             className: null
         };
     },
 
-    getInitialState() {
+    getInitialState: function getInitialState() {
         var where = {},
             selection;
 
         where[this.props.valueField] = this.props.value;
 
-        selection = _(this.props.options).findWhere(where);
+        selection = this.props.options.findWhere(where);
 
         return {
             dropdownIndex: 0,
@@ -98,11 +131,11 @@ const ReactAutocomplete = React.createClass({
         };
     },
 
-    getDisplayValue(value) {
+    getDisplayValue: function getDisplayValue(value) {
         var selectedOption;
 
         if (value) {
-            selectedOption = _(this.props.options).findWhere({ label: value });
+            selectedOption = this.props.options.findWhere({ label: value });
 
             if (selectedOption) {
                 return selectedOption.label;
@@ -113,7 +146,7 @@ const ReactAutocomplete = React.createClass({
     },
 
     // Get options with translated labels, if translation function is set
-    getOptions() {
+    getOptions: function getOptions() {
         var self = this,
             t = this.props.translationFunction;
 
@@ -131,27 +164,27 @@ const ReactAutocomplete = React.createClass({
         return this.options;
     },
 
-    componentDidMount() {
+    componentDidMount: function componentDidMount() {
         this.setDropdownPosition();
     },
 
-    shouldComponentUpdate(nextProps, nextState) {
+    shouldComponentUpdate: function shouldComponentUpdate(nextProps, nextState) {
         var filterIgnoredProps, shallowPropsChanged;
 
-        if (!isEqual(nextState, this.state)) {
+        if (!_lodashIsEqual2['default'](nextState, this.state)) {
             return true;
         }
 
         filterIgnoredProps = function (props) {
-            return omit(props, 'options');
+            return _lodashOmit2['default'](props, 'options');
         };
 
-        shallowPropsChanged = !isEqual(filterIgnoredProps(nextProps), filterIgnoredProps(this.props));
+        shallowPropsChanged = !_lodashIsEqual2['default'](filterIgnoredProps(nextProps), filterIgnoredProps(this.props));
 
         return shallowPropsChanged || nextProps.options.length !== this.props.options.length;
     },
 
-    componentWillMount() {
+    componentWillMount: function componentWillMount() {
         this.makeCurrentSelection = _(this.makeCurrentSelection).bind(this);
     },
 
@@ -176,7 +209,7 @@ const ReactAutocomplete = React.createClass({
             keys: [labelField]
         };
 
-        return new Fuse(items, options);
+        return new _fuseJs2['default'](items, options);
     },
 
     getSuggestions: function getSuggestions(query) {
@@ -403,7 +436,7 @@ const ReactAutocomplete = React.createClass({
 
         var offset = this.props.dropdownHeight || 250,
             winHeight = win.innerHeight,
-            componentPosition = React.findDOMNode(this.refs.autocomplete).getBoundingClientRect().top,
+            componentPosition = _react2['default'].findDOMNode(this.refs.autocomplete).getBoundingClientRect().top,
             dropdownPosition = componentPosition + offset > winHeight ? 'top' : 'bottom';
 
         if (!this.props.dropdownPosition && this.state.dropdownPosition !== dropdownPosition) {
@@ -431,25 +464,26 @@ const ReactAutocomplete = React.createClass({
         };
 
         Component = this.props.InputComponent;
-        extend(props, this.props.inputProps);
+        _lodashExtend2['default'](props, this.props.inputProps);
 
-        return React.createElement(Component, props);
+        console.log(Component);
+        return _react2['default'].createElement(Component, props);
     },
 
     renderDropdownItems: function renderDropdownItems() {
         var component = this;
 
         return this.state.suggestions.map(function (suggestion, index) {
-            var classes = classNames({
+            var classes = _classnames2['default']({
                 'autocomplete__item': true,
                 'autocomplete__item--selected': index === component.state.dropdownIndex
             });
 
-            return React.createElement(
+            return _react2['default'].createElement(
                 'li',
                 {
                     className: classes,
-                    onMouseDown: partial(component.makeSelection, suggestion),
+                    onMouseDown: _lodashPartial2['default'](component.makeSelection, suggestion),
                     key: suggestion[component.props.labelField]
                 },
                 suggestion[component.props.labelField]
@@ -475,14 +509,14 @@ const ReactAutocomplete = React.createClass({
             };
         }
 
-        return React.createElement(
+        return _react2['default'].createElement(
             'div',
             {
                 ref: 'list',
-                className: classNames(classes),
+                className: _classnames2['default'](classes),
                 style: dropdownStyles
             },
-            React.createElement(
+            _react2['default'].createElement(
                 'ul',
                 { className: 'autocomplete__list' },
                 this.renderDropdownItems()
@@ -493,10 +527,10 @@ const ReactAutocomplete = React.createClass({
     render: function render() {
         var classes = ['autocomplete', this.props.className];
 
-        return React.createElement(
+        return _react2['default'].createElement(
             'div',
-            { ref: 'autocomplete', className: classNames(classes) },
-            React.createElement(
+            { ref: 'autocomplete', className: _classnames2['default'](classes) },
+            _react2['default'].createElement(
                 'div',
                 { className: 'autocomplete__input-wrapper' },
                 this.renderInput()
@@ -505,5 +539,4 @@ const ReactAutocomplete = React.createClass({
         );
     }
 });
-
-export default ReactAutocomplete;
+module.exports = exports['default'];

@@ -21,16 +21,16 @@ server.use(function (req, res, next) {
     console.log('req.hostname', req.hostname);
 
     if ((ext === '' || ext === '.html') && req.url !== '/') {
-        req.pipe(request('http://' + req.hostname + ':9001')).pipe(res);
+        req.pipe(request('http://' + req.hostname + ':9000')).pipe(res);
     } else {
         next();
     }
 });
 
-server.listen(9001, function (err, result) {
+server.listen(9000, function (err, result) {
     if (err) {
         console.log(err);
     }
 
-    console.log('Listening at localhost:9001');
+    console.log('Listening at localhost:9000');
 });

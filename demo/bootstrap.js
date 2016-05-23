@@ -1,11 +1,10 @@
-'use strict';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import Demo from './demo';
 
-var React = require('react');
-var Demo  = require('./demo');
-
-window.onload = function() {
-    React.render(
-        React.createElement(Demo),
+window.onload = () => {
+    ReactDOM.render(
+        <Demo />,
         window.document.getElementById('content')
     );
 };
