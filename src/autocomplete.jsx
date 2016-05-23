@@ -1,11 +1,13 @@
-'use strict';
+const win = typeof window !== 'undefined' ? window : false;
 
-var win        = typeof window !== 'undefined' ? window : false;
-var _          = require('lodash');
-var React      = require('react');
-var classNames = require('classnames');
-var TextInput  = require('synfrastructure').Input;
-var Fuse       = require('fuse.js');
+import isEqual from 'lodash/isEqual';
+import omit from 'lodash/omit';
+import extend from 'lodash/extend';
+import partial from 'lodash/partial';
+import React from 'react';
+import classNames from 'classnames';
+import { Input as TextInput } from 'synfrastructure';
+import Fuse from 'fuse.js';
 
 var KC_ENTER     = 13,
     KC_ESC       = 27,
@@ -17,7 +19,7 @@ var KC_ENTER     = 13,
 // Number of items to jump up/down using page up / page down
 var PAGE_UP_DOWN_JUMP = 5;
 
-var ReactAutocomplete = React.createClass({
+export default React.createClass({
 
     displayName : 'ReactAutocomplete',
 
@@ -144,15 +146,15 @@ var ReactAutocomplete = React.createClass({
     {
         var filterIgnoredProps, shallowPropsChanged;
 
-        if (! _.isEqual(nextState, this.state)) {
+        if (! isEqual(nextState, this.state)) {
             return true;
         }
 
         filterIgnoredProps = function (props) {
-            return _.omit(props, 'options');
+            return omit(props, 'options');
         };
 
-        shallowPropsChanged = ! _.isEqual(
+        shallowPropsChanged = ! isEqual(
             filterIgnoredProps(nextProps),
             filterIgnoredProps(this.props)
         );
@@ -475,7 +477,7 @@ var ReactAutocomplete = React.createClass({
         };
 
         Component = this.props.InputComponent;
-        _.extend(props, this.props.inputProps);
+        extend(props, this.props.inputProps);
 
         return React.createElement(Component, props);
     },
@@ -493,7 +495,7 @@ var ReactAutocomplete = React.createClass({
             return (
                 <li
                     className   = {classes}
-                    onMouseDown = {_.partial(component.makeSelection, suggestion)}
+                    onMouseDown = {partial(component.makeSelection, suggestion)}
                     key         = {suggestion[component.props.labelField]}
                 >
                     {suggestion[component.props.labelField]}
@@ -554,5 +556,3 @@ var ReactAutocomplete = React.createClass({
         );
     }
 });
-
-module.exports = ReactAutocomplete;
