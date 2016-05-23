@@ -9,8 +9,9 @@ A lightweight autocomplete input component
 ```
 className : string
 id : 'string'
-labelField : 'string'
-options : [{option : 'string'}]
+labelField : 'string' (default 'label')
+valueField : 'string' (default 'value')(optional)
+options : [{ labelField : 'string', valueField : 'string' }]
 placeholder : 'string'
 minimumCharacters : number
 maximumCharacters : number
