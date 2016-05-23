@@ -1,3 +1,3 @@
-import Autocomplete from './dist/Autocomplete';
+import Autocomplete from './Autocomplete';
 
 export default Autocomplete;
