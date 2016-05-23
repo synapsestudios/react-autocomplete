@@ -1,6 +1,6 @@
 {
   "name": "synapse-react-autocomplete",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "React Autocomplete",
   "author": "Synapse Studios",
   "main": "lib/index.js",
