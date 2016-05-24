@@ -46,6 +46,7 @@ export default React.createClass({
         maximumSuggestions          : React.PropTypes.number,
         placeholder                 : React.PropTypes.string,
         clearOnFocus                : React.PropTypes.bool,
+        clearOnSelect               : React.PropTypes.bool,
         retainValueOnBlur           : React.PropTypes.bool,
         showSuggestionsOnEmptyFocus : React.PropTypes.bool,
         value                       : React.PropTypes.string,
@@ -83,7 +84,8 @@ export default React.createClass({
             dropdownHeight              : null,
             InputComponent              : 'input',
             inputProps                  : {},
-            className                   : null
+            className                   : null,
+            clearOnSelect               : false,
         };
     },
 
@@ -258,8 +260,8 @@ export default React.createClass({
     makeSelection(selection) {
         this.setState({
             suggestions : [],
-            selection   : selection,
-            searchQuery : selection[this.props.labelField]
+            selection   : this.props.clearOnSelect ? null : selection,
+            searchQuery : this.props.clearOnSelect ? '' : selection[this.props.labelField]
         });
 
         if (this.props.onChange) {
