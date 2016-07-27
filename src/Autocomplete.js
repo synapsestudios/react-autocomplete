@@ -12,7 +12,8 @@ import Fuse from 'fuse.js';
 
 const win = typeof window !== 'undefined' ? window : false;
 
-const KC_ENTER = 13,
+const KC_TAB = 9,
+    KC_ENTER = 13,
     KC_ESC = 27,
     KC_UP = 38,
     KC_DOWN = 40,
@@ -173,6 +174,12 @@ export default React.createClass({
         // Reset lazily-loaded options property if options have changed
         if (! isEqual(this.props.options, nextProps.options)) {
             this.options = null;
+        }
+
+        if (this.props.value !== nextProps.value) {
+            this.setState({
+                searchQuery: nextProps.value
+            });
         }
     },
 
@@ -395,8 +402,11 @@ export default React.createClass({
                 });
                 break;
             case KC_ENTER:
+            case KC_TAB:
                 if (this.dropdownVisible()) {
-                    event.preventDefault();
+                    if (code === KC_ENTER) {
+                        event.preventDefault();
+                    }
                     this.makeSelection(this.state.suggestions[this.state.dropdownIndex]);
                 }
                 break;
