@@ -129,7 +129,7 @@ export default React.createClass({
 
         if (translate) {
             return this.props.options.map(function (option) {
-                option[self.props.labelField] = t(option[self.props.labelField]);
+                option[self.props.labelField] = translate(option[self.props.labelField]);
                 return option;
             });
         }
