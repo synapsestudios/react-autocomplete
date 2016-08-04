@@ -92,19 +92,23 @@ export default React.createClass({
 
     getInitialState() {
         let where = {},
-            selection;
+            selection,
+            translatedOptions;
 
         where[this.props.valueField] = this.props.value;
 
         selection = find(this.props.options, where);
 
+        translatedOptions = this.translateOptionsIfNecessary(this.props.options);
+
         return {
             dropdownIndex    : 0,
-            fuse             : this.createFuseObject(this.getOptions(), this.props.labelField),
+            fuse             : this.createFuseObject(translatedOptions, this.props.labelField),
             suggestions      : [],
             selection        : selection || null,
             searchQuery      : this.getDisplayValue(this.props.value) || '',
-            dropdownPosition : this.props.dropdownPosition
+            dropdownPosition : this.props.dropdownPosition,
+            options          : translatedOptions
         };
     },
 
@@ -120,23 +124,17 @@ export default React.createClass({
         return value;
     },
 
-    // Get options with translated labels, if translation function is set
-    getOptions() {
-        const self = this,
-            t = this.props.translationFunction;
+    translateOptionsIfNecessary(options) {
+        const translate = this.props.translationFunction;
 
-        if (! this.options) {
-            if (t) {
-                this.options = this.props.options.map(function (option) {
-                    option[self.props.labelField] = t(option[self.props.labelField]);
-                    return option;
-                });
-            } else {
-                this.options = this.props.options;
-            }
+        if (translate) {
+            return this.props.options.map(function (option) {
+                option[self.props.labelField] = translate(option[self.props.labelField]);
+                return option;
+            });
         }
 
-        return this.options;
+        return options;
     },
 
     componentDidMount() {
@@ -145,7 +143,7 @@ export default React.createClass({
 
     shouldComponentUpdate(nextProps, nextState) {
         let filterIgnoredProps,
-              shallowPropsChanged;
+            shallowPropsChanged;
 
         if (! isEqual(nextState, this.state)) {
             return true;
@@ -173,7 +171,12 @@ export default React.createClass({
     componentWillReceiveProps(nextProps) {
         // Reset lazily-loaded options property if options have changed
         if (! isEqual(this.props.options, nextProps.options)) {
-            this.options = null;
+            const newOptions = this.translateOptionsIfNecessary(nextProps.options);
+
+            this.setState({
+                options : newOptions,
+                fuse: this.createFuseObject(newOptions, nextProps.labelField)
+            });
         }
 
         if (this.props.value !== nextProps.value) {
@@ -319,7 +322,7 @@ export default React.createClass({
         };
 
         if (value === '' && this.props.showSuggestionsOnEmptyFocus) {
-            newState.suggestions   = this.getOptions();
+            newState.suggestions   = this.state.options;
             newState.dropdownIndex = 0;
         }
 
@@ -353,7 +356,7 @@ export default React.createClass({
             this.setState({
                 searchQuery   : '',
                 selection     : null,
-                suggestions   : this.getOptions(),
+                suggestions   : this.state.options,
                 dropdownIndex : 0
             });
         }
