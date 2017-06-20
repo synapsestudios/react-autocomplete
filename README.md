@@ -1,3 +1,6 @@
+🚨🚨🚨 This project is no longer being actively developed/supported. We recommend checking out the community-driven https://github.com/reactjs/react-autocomplete as an alternative. 🚨🚨🚨
+
+
 React Autocomplete - [View Demo](http://synapsestudios.github.io/react-autocomplete/)
 ----
 A lightweight autocomplete input component
